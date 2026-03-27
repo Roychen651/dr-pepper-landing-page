@@ -890,8 +890,10 @@ footer { background: #000; border-top: 1px solid rgba(255,255,255,.05); }
   .btn-spin { width: 180px; height: 46px; }
 
   /* ── FLAVOR PANELS ── */
-  .fs-panel { padding: 40px 24px; min-height: 56vw; border-right: none; border-bottom: 1px solid var(--fg06); }
+  .fs-panel { padding: 40px 24px; min-height: 56vw; border-right: none; border-bottom: 1px solid var(--fg06); text-align: center; }
   .fsp-name { font-size: clamp(2rem, 7vw, 3rem); }
+  .fsp-divider { margin-left: auto; margin-right: auto; }
+  .fsp-desc { max-width: 100%; margin-left: auto; margin-right: auto; }
 
   /* ── PRODUCT STORY ── */
   .ps-grid { grid-template-columns: 1fr; gap: 48px; }
@@ -1279,6 +1281,34 @@ body.cursor-click .cur-r { width: 32px; height: 32px; }
 body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
 
 /* ═══════════════════════════════════════════════════
+   TAP-TO-HEAR SOUND NUDGE
+═══════════════════════════════════════════════════ */
+#sound-nudge {
+  position: fixed; bottom: 24px; right: 20px; z-index: 300;
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.12);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-radius: 100px;
+  padding: 8px 14px 8px 10px;
+  opacity: 0; animation: hint-fade 1s 3s ease forwards;
+  pointer-events: none;
+  transition: opacity .4s;
+}
+#sound-nudge.hidden { opacity: 0 !important; }
+#sound-nudge svg { flex-shrink: 0; }
+#sound-nudge span {
+  font-size: .56rem; font-weight: 700; letter-spacing: .18em;
+  text-transform: uppercase; color: rgba(255,255,255,.5);
+  white-space: nowrap;
+}
+@keyframes nudge-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,.06); }
+  50%      { box-shadow: 0 0 0 6px rgba(255,255,255,0); }
+}
+#sound-nudge:not(.hidden) { animation: hint-fade 1s 3s ease forwards, nudge-pulse 2.4s 4s ease infinite; }
+
+/* ═══════════════════════════════════════════════════
    EYEBROW TYPEWRITER
 ═══════════════════════════════════════════════════ */
 .ss-eyebrow {
@@ -1331,6 +1361,16 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
 
 <!-- Can-open sound — preloaded from page start -->
 <audio id="can-snd" preload="auto" src="freesound_community-opening-soda-can-85366.mp3"></audio>
+
+<!-- Sound nudge pill — disappears after first tap/click -->
+<div id="sound-nudge" role="status" aria-live="polite">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+  </svg>
+  <span>Tap for sound</span>
+</div>
 
 <!-- Particle atmosphere canvas -->
 <canvas id="particle-canvas"></canvas>
@@ -1972,26 +2012,48 @@ function startRAF() {
   rafId = requestAnimationFrame(tick);
 }
 
-/* ─── CAN-OPEN SOUND — fires once on very first interaction ── */
+/* ─── CAN-OPEN SOUND — fires once on first real user gesture ── */
 (function() {
   let done = false;
   const snd = document.getElementById('can-snd');
   if (!snd) return;
   snd.volume = 0.9;
 
-  function fire() {
-    if (done) return;
-    done = true;
-    snd.currentTime = 0;
-    snd.play().catch(() => {});
-    // Remove all listeners immediately
-    ['wheel','touchstart','touchend','mousedown','keydown']
-      .forEach(e => document.removeEventListener(e, fire));
+  // Only events the browser treats as "user activation" for media playback
+  const EVENTS = ['click','mouseup','touchend','keydown','keyup','pointerup'];
+
+  function removeSoundListeners() {
+    EVENTS.forEach(e => document.removeEventListener(e, fire, true));
   }
 
-  // Attach to every possible first-gesture event type
-  ['wheel','touchstart','touchend','mousedown','keydown']
-    .forEach(e => document.addEventListener(e, fire, { passive: true }));
+  const nudge = document.getElementById('sound-nudge');
+
+  function hideNudge() {
+    if (nudge) nudge.classList.add('hidden');
+  }
+
+  function fire() {
+    if (done) return;
+    snd.currentTime = 0;
+    const p = snd.play();
+    if (p && typeof p.then === 'function') {
+      p.then(() => {
+        done = true;
+        hideNudge();
+        removeSoundListeners();
+      }).catch(() => {
+        // play failed — keep listeners; try again on next gesture
+      });
+    } else {
+      // old browsers: synchronous play, assume success
+      done = true;
+      hideNudge();
+      removeSoundListeners();
+    }
+  }
+
+  // Use capture phase so we get the event before anything can stop propagation
+  EVENTS.forEach(e => document.addEventListener(e, fire, { capture: true, passive: true }));
 })();
 
 /* ─── LENIS SMOOTH SCROLL ────────────────────────────────── */
