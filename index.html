@@ -1588,6 +1588,183 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
 }
 
 /* ═══════════════════════════════════════════════════
+   MOBILE SWIPE ONBOARDING CARD
+═══════════════════════════════════════════════════ */
+#swipe-onboard {
+  display: none; /* JS adds .show on mobile */
+  position: fixed; inset: 0; z-index: 800;
+  align-items: flex-end; justify-content: center;
+  padding: 0 0 24px;
+}
+#swipe-onboard.show { display: flex; }
+#swipe-onboard.swo-exit { animation: swo-slide-out .35s var(--ease) forwards; }
+@keyframes swo-slide-out {
+  to { transform: translateY(110%); opacity: 0; }
+}
+
+.swo-backdrop {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.88) 0%, rgba(0,0,0,.3) 60%, transparent 100%);
+  backdrop-filter: blur(2px);
+}
+.swo-card {
+  position: relative; z-index: 1;
+  background: rgba(12,12,12,.96);
+  border: 1px solid rgba(255,255,255,.13);
+  border-bottom: none;
+  border-radius: 28px 28px 0 0;
+  padding: 28px 24px 32px;
+  width: 100%; max-width: 480px;
+  text-align: center;
+  box-shadow: 0 -24px 64px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.1);
+  animation: swo-slide-up .5s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes swo-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* Drag handle */
+.swo-card::before {
+  content: '';
+  display: block; width: 36px; height: 4px;
+  background: rgba(255,255,255,.2);
+  border-radius: 2px; margin: 0 auto 20px;
+}
+
+.swo-eyebrow {
+  font-size: .5rem; font-weight: 700; letter-spacing: .22em;
+  color: rgba(var(--accent-rgb), .8);
+  text-transform: uppercase; margin-bottom: 22px;
+}
+
+/* Three flavor columns */
+.swo-flavors {
+  display: flex; gap: 0; justify-content: center;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 16px; overflow: hidden;
+}
+.swo-fl {
+  flex: 1; padding: 16px 8px 14px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.02);
+  transition: background .3s;
+  border-right: 1px solid rgba(255,255,255,.06);
+}
+.swo-fl:last-child { border-right: none; }
+.swo-fl--active { background: rgba(var(--accent-rgb), .12); }
+
+/* Mini can icon — colored circle */
+.swo-fl-can {
+  width: 36px; height: 52px;
+  border-radius: 6px;
+  position: relative;
+}
+.swo-fl-can--regular    { background: linear-gradient(160deg, #8B2635 0%, #4A0D11 100%); }
+.swo-fl-can--cherry     { background: linear-gradient(160deg, #E5002B 0%, #900010 100%); }
+.swo-fl-can--blackberry { background: linear-gradient(160deg, #6B35C0 0%, #2D0F5A 100%); }
+.swo-fl-can::after {
+  content: '';
+  position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+  width: 18px; height: 2px;
+  background: rgba(255,255,255,.35); border-radius: 1px;
+}
+
+.swo-fl-name {
+  font-size: .62rem; font-weight: 600; letter-spacing: .06em;
+  color: rgba(255,255,255,.55); text-transform: uppercase;
+}
+.swo-fl--active .swo-fl-name { color: #fff; }
+
+.swo-fl-here {
+  font-size: .42rem; font-weight: 700; letter-spacing: .14em;
+  color: rgba(var(--accent-rgb), 1); text-transform: uppercase;
+}
+
+/* Swipe gesture row */
+.swo-gesture-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; margin-bottom: 16px;
+}
+.swo-arrow-l, .swo-arrow-r {
+  font-size: 1.2rem; color: rgba(255,255,255,.3);
+}
+.swo-arrow-l { animation: swipe-pulse-l 1.6s 1s ease-in-out infinite alternate; }
+.swo-arrow-r { animation: swipe-pulse-r 1.6s 1s ease-in-out infinite alternate; }
+@keyframes swipe-pulse-l { to { color: rgba(204,0,0,.8);   transform: translateX(-6px); } }
+@keyframes swipe-pulse-r { to { color: rgba(74,29,130,.8); transform: translateX(6px);  } }
+
+.swo-finger-wrap {
+  width: 52px; height: 52px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 50%;
+}
+.swo-finger {
+  font-size: 1.6rem;
+  animation: finger-swipe 1.6s 1s ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes finger-swipe {
+  0%   { transform: translateX(0)    scale(1); }
+  30%  { transform: translateX(-14px) scale(.92); }
+  60%  { transform: translateX(14px)  scale(.92); }
+  80%  { transform: translateX(-4px); }
+  100% { transform: translateX(0)    scale(1); }
+}
+
+.swo-hint {
+  font-size: .75rem; color: rgba(255,255,255,.45);
+  margin-bottom: 20px; line-height: 1.5;
+}
+
+.swo-cta {
+  width: 100%; padding: 14px;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: .78rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; cursor: pointer;
+  transition: opacity .2s, transform .1s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.swo-cta:active { opacity: .8; transform: scale(.98); }
+
+/* ═══════════════════════════════════════════════════
+   FLAVOR PEEK STRIPS — permanent thin edge indicators
+   Always visible on mobile. Shows "there's content
+   at the edge → swipe to reveal it." Classic pattern.
+═══════════════════════════════════════════════════ */
+.peek-strip {
+  display: none; /* enabled via media query */
+  position: fixed; top: 0; bottom: 0;
+  left: 0; width: 28px; z-index: 60;
+  pointer-events: none;
+  background: linear-gradient(to right, rgba(204,0,0,.22) 0%, transparent 100%);
+  transition: background 1.2s ease, opacity .4s;
+  /* writing-mode for vertical text */
+  overflow: hidden;
+}
+.peek-strip--r {
+  left: auto; right: 0;
+  background: linear-gradient(to left, rgba(74,29,130,.22) 0%, transparent 100%);
+}
+.peek-label {
+  position: absolute; top: 50%;
+  left: 50%; transform: translate(-50%, -50%) rotate(-90deg);
+  font-size: .36rem; font-weight: 700; letter-spacing: .18em;
+  text-transform: uppercase; color: rgba(255,255,255,.28);
+  white-space: nowrap;
+}
+.peek-strip--r .peek-label { transform: translate(-50%, -50%) rotate(90deg); }
+@media (max-width: 768px) {
+  .peek-strip { display: block; }
+}
+
+/* ═══════════════════════════════════════════════════
    SECTION TITLE GRADIENT — highlight em tags
    more vibrant than before
 ═══════════════════════════════════════════════════ */
@@ -1606,6 +1783,57 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
 
 <!-- Can-open sound — preloaded from page start -->
 <audio id="can-snd" preload="auto" src="freesound_community-opening-soda-can-85366.mp3"></audio>
+
+<!-- ═══ MOBILE SWIPE ONBOARDING ═══
+     Shown once per session. Teaches the swipe gesture by showing the
+     3 flavors laid out horizontally — the mental model becomes obvious. -->
+<div id="swipe-onboard" aria-hidden="true" role="dialog" aria-label="Swipe tutorial">
+  <div class="swo-backdrop"></div>
+  <div class="swo-card">
+    <div class="swo-eyebrow">3 FLAVORS TO EXPLORE</div>
+
+    <!-- Three flavors shown side by side — the user instantly "sees" the swipeable layout -->
+    <div class="swo-flavors">
+      <div class="swo-fl" data-color="#CC0000">
+        <div class="swo-fl-can swo-fl-can--cherry"></div>
+        <span class="swo-fl-name">Cherry</span>
+      </div>
+
+      <div class="swo-fl swo-fl--active" data-color="#711F25">
+        <div class="swo-fl-can swo-fl-can--regular"></div>
+        <span class="swo-fl-name">Regular</span>
+        <span class="swo-fl-here">● HERE</span>
+      </div>
+
+      <div class="swo-fl" data-color="#4a1d82">
+        <div class="swo-fl-can swo-fl-can--blackberry"></div>
+        <span class="swo-fl-name">Blackberry</span>
+      </div>
+    </div>
+
+    <!-- Animated swipe gesture -->
+    <div class="swo-gesture-row">
+      <div class="swo-arrow-l">←</div>
+      <div class="swo-finger-wrap">
+        <div class="swo-finger" aria-hidden="true">☜</div>
+      </div>
+      <div class="swo-arrow-r">→</div>
+    </div>
+
+    <p class="swo-hint">Swipe left or right anywhere on screen</p>
+    <button id="swo-btn" class="swo-cta">Got it</button>
+  </div>
+</div>
+
+<!-- ═══ MOBILE FLAVOR PEEK STRIPS ═══
+     Permanent thin edge strips showing the adjacent flavor's color.
+     Always visible → the user always "sees" there's more content at the edge. -->
+<div id="peek-l" class="peek-strip" aria-hidden="true">
+  <span class="peek-label">Cherry</span>
+</div>
+<div id="peek-r" class="peek-strip peek-strip--r" aria-hidden="true">
+  <span class="peek-label">Blackberry</span>
+</div>
 
 <!-- Mobile bottom thumb-zone flavor switcher (hidden on desktop via CSS) -->
 <div id="mobile-flavor-bar" role="tablist" aria-label="Choose flavor">
@@ -2709,21 +2937,91 @@ function init() {
     startExperience // desktop: wait for 100%
   );
 
-  // AUTO-DEMO SWIPE: after 2.8s on mobile, the canvas physically jiggles
-  // left → right → settle. This is the single most effective way to show
-  // "this content can be swiped" — no tooltip can beat a real physical demo.
+  // AUTO-DEMO SWIPE: plays after onboarding dismisses (or if already seen).
+  // The canvas physically jiggles to reinforce the gesture.
   if (IS_MOBILE) {
+    // On first visit, play demo after onboarding auto-dismisses (9s)
+    // On repeat visits (sessionStorage set), play at 2.8s
+    const demoDelay = sessionStorage.getItem('dp_swiped') ? 2800 : 9500;
     setTimeout(() => {
       if (document.body.classList.contains('swiped')) return;
       canvas.classList.add('demo-swipe');
       canvas.addEventListener('animationend', () => {
         canvas.classList.remove('demo-swipe');
       }, { once: true });
-    }, 2800);
+    }, demoDelay);
   }
 }
 
 init();
+
+/* ─── SWIPE ONBOARDING — first visit only ────────────── */
+(function initSwipeOnboard() {
+  if (!IS_MOBILE) return;
+  const onboard = document.getElementById('swipe-onboard');
+  const btn     = document.getElementById('swo-btn');
+  if (!onboard || !btn) return;
+
+  // Only show once per session
+  if (sessionStorage.getItem('dp_swiped')) return;
+
+  function dismiss() {
+    sessionStorage.setItem('dp_swiped', '1');
+    document.body.classList.add('swiped');
+    onboard.classList.add('swo-exit');
+    onboard.addEventListener('animationend', () => {
+      onboard.style.display = 'none';
+    }, { once: true });
+  }
+
+  // Show after 2s — give user time to see the hero
+  setTimeout(() => {
+    if (document.body.classList.contains('swiped')) return;
+    onboard.setAttribute('aria-hidden', 'false');
+    onboard.classList.add('show');
+  }, 2000);
+
+  // Dismiss on button tap OR on backdrop tap OR on actual swipe
+  btn.addEventListener('click', dismiss);
+  onboard.querySelector('.swo-backdrop').addEventListener('click', dismiss);
+
+  // Auto-dismiss after 7s
+  setTimeout(dismiss, 9000);
+})();
+
+/* ─── PEEK STRIPS — update colors when flavor changes ── */
+(function initPeekStrips() {
+  if (!IS_MOBILE) return;
+  const peekL = document.getElementById('peek-l');
+  const peekR = document.getElementById('peek-r');
+  if (!peekL || !peekR) return;
+
+  // Colors and labels indexed to VARIANTS order [Regular, Cherry, Blackberry]
+  const PEEK_COLORS = [
+    { left: '204,0,0',   leftLabel: 'Cherry',     right: '74,29,130', rightLabel: 'Blackberry' },
+    { left: '74,29,130', leftLabel: 'Blackberry',  right: '113,31,37', rightLabel: 'Regular'    },
+    { left: '204,0,0',   leftLabel: 'Cherry',     right: '113,31,37', rightLabel: 'Regular'    },
+  ];
+
+  function updatePeeks(vIdx) {
+    const p = PEEK_COLORS[vIdx];
+    peekL.style.background = `linear-gradient(to right, rgba(${p.left},.25) 0%, transparent 100%)`;
+    peekR.style.background = `linear-gradient(to left, rgba(${p.right},.25) 0%, transparent 100%)`;
+    peekL.querySelector('.peek-label').textContent = p.leftLabel;
+    peekR.querySelector('.peek-label').textContent = p.rightLabel;
+  }
+
+  // Initial state
+  updatePeeks(0);
+
+  // Hook into applyTheme — patch it to also call updatePeeks
+  const _origApply = window._patchedApply || applyTheme;
+  applyTheme = function(vIdx) {
+    _origApply(vIdx);
+    updatePeeks(vIdx);
+  };
+  window._patchedApply = applyTheme;
+})();
 
 /* ─── CUSTOM SCROLLBAR ───────────────────────────────── */
 const csbThumb = document.getElementById('csb-thumb');
