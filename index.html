@@ -911,10 +911,100 @@ footer { background: #000; border-top: 1px solid rgba(255,255,255,.05); }
   .nav-hamburger          { display: flex !important; }
   .nav-right .btn-spin    { display: none !important; }
   .nav-flavors            { display: none !important; }
+
+  /* PILLAR 1: DVH — kills URL-bar jump on iOS/Android */
+  #hero-pin { height: 100dvh; }
+  body { overscroll-behavior-y: none; }
+
+  /* PILLAR 2: Show bottom thumb-zone & swipe nudge */
+  #mobile-flavor-bar { display: flex; }
+  .swipe-nudge       { display: flex; }
+
+  /* Hide desktop flavor dots on mobile (replaced by bar) */
+  .flavor-dots { display: none; }
+
+  /* PILLAR 3: Custom scrollbar hidden on mobile (distracting) */
+  #csb { display: none; }
 }
 @media (max-width: 480px) {
   .nav-flavors { display: none !important; }
 }
+
+/* ═══════════════════════════════════════════════════
+   MOBILE ELITE UPGRADES — all pillars
+═══════════════════════════════════════════════════ */
+
+/* PILLAR 1: Bottom flavor switcher — thumb zone */
+#mobile-flavor-bar {
+  display: none; /* enabled via media query */
+  position: fixed;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  left: 50%; transform: translateX(-50%);
+  z-index: 220;
+  gap: 6px;
+  background: rgba(8,8,8,.88);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 100px;
+  padding: 6px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.55), 0 2px 8px rgba(0,0,0,.3);
+  transition: opacity .3s var(--ease), transform .3s var(--ease);
+  will-change: transform;
+}
+#mobile-flavor-bar.peek-hidden {
+  opacity: 0; pointer-events: none;
+  transform: translateX(-50%) translateY(16px);
+}
+.mfb-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 9px 18px;
+  border-radius: 100px; border: none; cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: .58rem; font-weight: 700; letter-spacing: .16em;
+  text-transform: uppercase; color: rgba(255,255,255,.45);
+  background: transparent;
+  transition: background .3s, color .25s, transform .08s;
+  white-space: nowrap;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.mfb-btn.active { background: var(--accent); color: #fff; }
+.mfb-btn:active { transform: scale(0.92) !important; }
+.mfb-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: currentColor; flex-shrink: 0;
+}
+
+/* PILLAR 2: Active states — instant haptic-feel feedback */
+@media (hover: none) and (pointer: coarse) {
+  .btn-spin:active  { transform: scale(0.95) !important; filter: brightness(.82); transition: transform .06s, filter .06s !important; }
+  .btn-fill:active  { transform: scale(0.95) !important; filter: brightness(.82); transition: transform .06s, filter .06s !important; }
+  .fsp-btn:active   { transform: scale(0.93) !important; transition: transform .06s !important; }
+  .flavor-dot:active { transform: scale(0.82) !important; transition: transform .06s !important; }
+  .mc-wrap:active   { transform: scale(0.98) !important; transition: transform .08s !important; }
+  .review-toggle:active { opacity: .65; transform: scale(0.97); transition: opacity .06s, transform .06s; }
+  nav a:active, .nmo-flavor-btn:active { opacity: .6; transition: opacity .06s; }
+}
+
+/* PILLAR 4: Swipe hint inside hero */
+.swipe-nudge {
+  display: none; /* enabled via media query */
+  position: absolute; bottom: 80px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 12; align-items: center; gap: 10px;
+  opacity: 0; animation: hint-fade 1s 4.5s ease forwards;
+  pointer-events: none;
+}
+.swipe-nudge-icon { font-size: .55rem; font-weight: 700; letter-spacing: .22em;
+  text-transform: uppercase; color: rgba(255,255,255,.35); }
+.swipe-nudge-line {
+  width: 28px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
+}
+body.swiped .swipe-nudge { opacity: 0 !important; transition: opacity .4s; }
 
 /* ═══════════════════════════════════════════════════
    CUSTOM SCROLLBAR — unique pill design
@@ -1362,6 +1452,19 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
 <!-- Can-open sound — preloaded from page start -->
 <audio id="can-snd" preload="auto" src="freesound_community-opening-soda-can-85366.mp3"></audio>
 
+<!-- Mobile bottom thumb-zone flavor switcher (hidden on desktop via CSS) -->
+<div id="mobile-flavor-bar" role="tablist" aria-label="Choose flavor">
+  <button class="mfb-btn active" data-mfb="0" role="tab" aria-selected="true">
+    <span class="mfb-dot"></span>Regular
+  </button>
+  <button class="mfb-btn" data-mfb="1" role="tab" aria-selected="false">
+    <span class="mfb-dot"></span>Cherry
+  </button>
+  <button class="mfb-btn" data-mfb="2" role="tab" aria-selected="false">
+    <span class="mfb-dot"></span>Blackberry
+  </button>
+</div>
+
 <!-- Sound nudge pill — disappears after first tap/click -->
 <div id="sound-nudge" role="status" aria-live="polite">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1506,10 +1609,17 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
       </div>
     </div>
 
-    <!-- Scroll hint -->
+    <!-- Scroll hint (desktop) -->
     <div class="scroll-hint">
       <span class="scroll-hint-label">Scroll</span>
       <div class="scroll-hint-line"></div>
+    </div>
+
+    <!-- Swipe hint (mobile only) -->
+    <div class="swipe-nudge" aria-hidden="true">
+      <div class="swipe-nudge-line"></div>
+      <span class="swipe-nudge-icon">Swipe to switch</span>
+      <div class="swipe-nudge-line"></div>
     </div>
 
     <!-- Flavor dots -->
@@ -1891,6 +2001,9 @@ const VARIANTS = [
   { id:'blackberry', eyebrow:'Blackberry — Dark & Complex',  accentText:'Dark Mystery.', accent:'#4a1d82', accentRgb:'74,29,130',  bgWord:'BLACKBERRY', folder:'blackberry_dr_pepper_frames',   frameCount:202, startImg:'black_berry_start.png' },
 ];
 
+// Detect mobile once — used throughout for touch/desktop branches
+const IS_MOBILE = window.matchMedia('(max-width: 768px)').matches;
+
 const SECTION_TIMINGS = [
   { fadeIn:0,    peakStart:.04,  peakEnd:.14, fadeOut:.22, dir:'up'    },
   { fadeIn:.20,  peakStart:.27,  peakEnd:.42, fadeOut:.50, dir:'left'  },
@@ -1990,11 +2103,25 @@ function secTransform(op, dir) {
   return '';
 }
 
+/* ─── MOBILE RAF IDLE PAUSE — battery & heat saver ──────── */
+let _idleTimer = null;
+function wakeRAF() {
+  // Restart canvas loop if idle, then schedule auto-pause after scroll stops
+  if (!rafId) startRAF();
+  clearTimeout(_idleTimer);
+  _idleTimer = setTimeout(() => {
+    cancelAnimationFrame(rafId);
+    rafId = null;
+  }, 300);
+}
+
 /* ─── RAF LOOP ───────────────────────────────────────────── */
 function startRAF() {
   if (rafId) return;
   function tick() {
-    lerpP = lerp(lerpP, rawP, .055);
+    // Mobile: instant — no lerp fighting native scroll physics
+    // Desktop: smooth lerp for the scrollytelling feel
+    lerpP = IS_MOBILE ? rawP : lerp(lerpP, rawP, .055);
     const v = VARIANTS[cv];
     const fi = clamp(Math.floor(rawP * v.frameCount), 0, v.frameCount-1);
     if (fi !== activeF) { activeF = fi; drawF(fi); }
@@ -2059,6 +2186,21 @@ function startRAF() {
 /* ─── LENIS SMOOTH SCROLL ────────────────────────────────── */
 let lenis;
 function initLenis() {
+  if (IS_MOBILE) {
+    // ── MOBILE: native scroll — no virtual layer fighting iOS momentum ──
+    // Native scroll gives free inertia, rubber-band, and 120fps ProMotion
+    window.addEventListener('scroll', () => {
+      maxScroll = driver.offsetHeight - window.innerHeight;
+      const s = window.scrollY;
+      rawP = clamp(s / maxScroll, 0, 1);
+      if (s > 40) topNav.classList.add('frosted');
+      else        topNav.classList.remove('frosted');
+      wakeRAF(); // wake canvas loop; it auto-sleeps after scroll stops
+    }, { passive: true });
+    return;
+  }
+
+  // ── DESKTOP: Lenis smooth scroll ──
   lenis = new Lenis({ lerp: 0.085, smoothWheel: true });
 
   lenis.on('scroll', ({ scroll }) => {
@@ -2160,6 +2302,11 @@ function applyTheme(vIdx) {
   flavorBtns.forEach((b,i) => b.classList.toggle('active', i===vIdx));
   flavorDots.forEach((d,i) => d.classList.toggle('active', i===vIdx));
   document.querySelectorAll('.nmo-flavor-btn').forEach((b,i) => b.classList.toggle('active', i===vIdx));
+  // Sync mobile bottom flavor bar
+  document.querySelectorAll('.mfb-btn').forEach((b,i) => {
+    b.classList.toggle('active', i===vIdx);
+    b.setAttribute('aria-selected', i===vIdx ? 'true' : 'false');
+  });
 }
 
 /* ─── SWITCH VARIANT ─────────────────────────────────────── */
@@ -2301,17 +2448,27 @@ document.querySelectorAll('.review-toggle').forEach(btn => {
   });
 });
 
+// Use stable layout height (clientHeight ignores mobile browser chrome changes)
+function getStableHeight() {
+  return IS_MOBILE
+    ? document.documentElement.clientHeight
+    : window.innerHeight;
+}
+
 window.addEventListener('resize', () => {
-  driver.style.height = `${window.innerHeight * 4}px`;
-  maxScroll = driver.offsetHeight - window.innerHeight;
+  // On mobile, only recompute on true resize (orientation), not URL-bar show/hide
+  const h = getStableHeight();
+  driver.style.height = `${h * 4}px`;
+  maxScroll = driver.offsetHeight - h;
   resizeCanvas();
-  ScrollTrigger && ScrollTrigger.refresh();
+  if (!IS_MOBILE) ScrollTrigger && ScrollTrigger.refresh();
 });
 
 /* ─── INIT ───────────────────────────────────────────────── */
 function init() {
-  driver.style.height = `${window.innerHeight * 4}px`;
-  maxScroll = driver.offsetHeight - window.innerHeight;
+  const h = getStableHeight();
+  driver.style.height = `${h * 4}px`;
+  maxScroll = driver.offsetHeight - h;
   resizeCanvas();
 
   // Show start image while loading
@@ -2342,9 +2499,11 @@ function init() {
       applyTheme(0);
       drawF(0);
       initLenis();
+      // On mobile the RAF is woken by scroll; start it once for first paint
       startRAF();
+      if (IS_MOBILE) { clearTimeout(_idleTimer); _idleTimer = setTimeout(() => { cancelAnimationFrame(rafId); rafId = null; }, 800); }
       initGSAP();
-      initMagnetic();
+      if (!IS_MOBILE) initMagnetic(); // magnetic hover is pointless on touch
       setTimeout(() => preload(1), 600);
       setTimeout(() => preload(2), 2200);
     }
@@ -2456,10 +2615,65 @@ document.querySelectorAll('.fr-cell').forEach(cell => {
   obs.observe(cell);
 });
 
+/* ─── MOBILE: SWIPE TO SWITCH FLAVOR ─────────────────── */
+(function initSwipe() {
+  if (!IS_MOBILE) return;
+  let startX = 0, startY = 0, startT = 0;
+  const hero = document.getElementById('hero-pin');
+  if (!hero) return;
+
+  hero.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    startT = Date.now();
+  }, { passive: true });
+
+  hero.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    const dt = Date.now() - startT;
+    // Valid swipe: fast, long horizontal, not mostly vertical
+    if (dt > 450) return;
+    if (Math.abs(dx) < 44) return;
+    if (Math.abs(dy) > Math.abs(dx) * 0.75) return; // likely a scroll
+
+    document.body.classList.add('swiped');
+    switchVariant(dx < 0
+      ? (cv + 1) % VARIANTS.length              // swipe left → next
+      : (cv - 1 + VARIANTS.length) % VARIANTS.length // swipe right → prev
+    );
+  }, { passive: true });
+})();
+
+/* ─── MOBILE: FLAVOR BAR BUTTONS ─────────────────────── */
+(function initMobileFlavorBar() {
+  const bar = document.getElementById('mobile-flavor-bar');
+  if (!bar) return;
+  bar.querySelectorAll('.mfb-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchVariant(+btn.dataset.mfb));
+  });
+
+  // Hide bar while deep in page (only relevant at hero)
+  let lastY = 0;
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    const heroH = document.getElementById('scroll-driver').offsetHeight;
+    // Past the hero section → hide bar (not needed on detail sections)
+    if (y > heroH) {
+      bar.classList.add('peek-hidden');
+    } else {
+      bar.classList.remove('peek-hidden');
+    }
+    lastY = y;
+  }, { passive: true });
+})();
+
 /* ─── PARTICLE ATMOSPHERE — Premium constellation ────── */
 (function initParticles() {
   const pc = document.getElementById('particle-canvas');
   if (!pc) return;
+  // Skip on mobile — GPU drain, invisible behind hero canvas, saves battery
+  if (IS_MOBILE) { pc.style.display = 'none'; return; }
   const pctx = pc.getContext('2d');
   let W, H, nodes = [];
 
