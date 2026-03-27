@@ -1329,6 +1329,9 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
 </head>
 <body>
 
+<!-- Can-open sound — preloaded from page start -->
+<audio id="can-snd" preload="auto" src="freesound_community-opening-soda-can-85366.mp3"></audio>
+
 <!-- Particle atmosphere canvas -->
 <canvas id="particle-canvas"></canvas>
 
@@ -1969,24 +1972,27 @@ function startRAF() {
   rafId = requestAnimationFrame(tick);
 }
 
-/* ─── CAN-OPEN SOUND (real .mp3 file, fires once) ──────────── */
-let _canSoundPlayed = false;
-const _canAudio = new Audio('freesound_community-opening-soda-can-85366.mp3');
-_canAudio.preload = 'auto';
-_canAudio.volume  = 0.85;
+/* ─── CAN-OPEN SOUND — fires once on very first interaction ── */
+(function() {
+  let done = false;
+  const snd = document.getElementById('can-snd');
+  if (!snd) return;
+  snd.volume = 0.9;
 
-function playCanOpen() {
-  if (_canSoundPlayed) return;
-  _canSoundPlayed = true;
-  _canAudio.currentTime = 0;
-  _canAudio.play().catch(() => {});   // silent fail if blocked
-}
+  function fire() {
+    if (done) return;
+    done = true;
+    snd.currentTime = 0;
+    snd.play().catch(() => {});
+    // Remove all listeners immediately
+    ['wheel','touchstart','touchend','mousedown','keydown']
+      .forEach(e => document.removeEventListener(e, fire));
+  }
 
-// wheel + touchstart are true user-gesture events — guaranteed to
-// satisfy browser autoplay policy on all browsers incl. iOS Safari
-['wheel','touchstart'].forEach(evt =>
-  window.addEventListener(evt, playCanOpen, { once: true, passive: true })
-);
+  // Attach to every possible first-gesture event type
+  ['wheel','touchstart','touchend','mousedown','keydown']
+    .forEach(e => document.addEventListener(e, fire, { passive: true }));
+})();
 
 /* ─── LENIS SMOOTH SCROLL ────────────────────────────────── */
 let lenis;
