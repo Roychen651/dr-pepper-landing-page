@@ -980,6 +980,11 @@ footer { background: #000; border-top: 1px solid rgba(255,255,255,.05); }
   width: 5px; height: 5px; border-radius: 50%;
   background: currentColor; flex-shrink: 0;
 }
+.mfb-arrow {
+  font-size: 1.1rem; color: rgba(255,255,255,.28);
+  padding: 0 4px; line-height: 1; pointer-events: none;
+  user-select: none; -webkit-user-select: none;
+}
 
 /* PILLAR 2: Active states — instant haptic-feel feedback */
 @media (hover: none) and (pointer: coarse) {
@@ -1501,6 +1506,100 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
   transition: transform .8s var(--ease);
 }
 .fr-cell.revealed::after { transform: scaleX(1); }
+
+/* ═══════════════════════════════════════════════════
+   AUTO-DEMO SWIPE — physical affordance animation
+   Plays once on mobile after load to show the canvas
+   can be swiped. More effective than any text hint.
+═══════════════════════════════════════════════════ */
+@keyframes demo-swipe-anim {
+  0%   { transform: translateX(0)    scale(1); }
+  18%  { transform: translateX(-38px) scale(1.008); }
+  46%  { transform: translateX(28px)  scale(1.008); }
+  70%  { transform: translateX(-10px) scale(1); }
+  85%  { transform: translateX(5px); }
+  100% { transform: translateX(0)    scale(1); }
+}
+#hero-canvas.demo-swipe {
+  animation: demo-swipe-anim 1.4s cubic-bezier(.25,.46,.45,.94) forwards !important;
+  transition: none !important;
+}
+
+/* ═══════════════════════════════════════════════════
+   MOBILE FLAVOR BAR — premium attention-grab on load
+═══════════════════════════════════════════════════ */
+@keyframes bar-intro-pulse {
+  0%, 100% { box-shadow: 0 8px 32px rgba(0,0,0,.55), 0 2px 8px rgba(0,0,0,.3); }
+  50%       { box-shadow: 0 8px 32px rgba(0,0,0,.55), 0 0 0 3px rgba(var(--accent-rgb),.45), 0 0 24px 4px rgba(var(--accent-rgb),.2); }
+}
+@media (max-width: 768px) {
+  #mobile-flavor-bar { animation: bar-intro-pulse 1.6s ease 3s 2 both; }
+}
+
+/* ═══════════════════════════════════════════════════
+   MOBILE HERO SCROLL CARDS — elevation polish
+═══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .ss-card {
+    background: rgba(5,5,5,.78);
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    border: 1px solid rgba(255,255,255,.1);
+    border-top: 1px solid rgba(255,255,255,.18);
+    border-radius: 20px;
+    box-shadow: 0 24px 64px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.08);
+    padding: 28px 26px 32px;
+  }
+  .ss-card-num {
+    font-size: clamp(2.4rem, 9vw, 3.2rem);
+    background: linear-gradient(135deg, rgba(var(--accent-rgb),1) 0%, rgba(var(--accent-rgb),.4) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+  .ss-card-title {
+    font-size: clamp(1.4rem, 5.5vw, 2rem);
+    line-height: 1.15;
+    margin-bottom: 14px;
+  }
+  .ss-card-body {
+    font-size: .88rem;
+    line-height: 1.65;
+    color: rgba(255,255,255,.72);
+  }
+  /* CTA glass card */
+  .ss-cta-glass {
+    background: rgba(8,8,8,.82);
+    backdrop-filter: blur(28px) saturate(1.8);
+    -webkit-backdrop-filter: blur(28px) saturate(1.8);
+    border: 1px solid rgba(255,255,255,.12);
+    border-top: 1px solid rgba(255,255,255,.22);
+    box-shadow: 0 32px 80px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.1);
+  }
+  /* Hero text card elevation */
+  .ss-hero-inner {
+    background: rgba(5,5,5,.82);
+    backdrop-filter: blur(24px) saturate(1.6);
+    -webkit-backdrop-filter: blur(24px) saturate(1.6);
+    border-top: 1px solid rgba(255,255,255,.2);
+    box-shadow: 0 20px 60px rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.1);
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   SECTION TITLE GRADIENT — highlight em tags
+   more vibrant than before
+═══════════════════════════════════════════════════ */
+.ps-title em, .section-title em {
+  background: linear-gradient(110deg, #fff 0%, rgba(var(--accent-rgb),1) 40%, #fff 65%, rgba(var(--accent-rgb),.8) 88%, #fff 100%);
+  background-size: 260% auto;
+  animation: shimmer-title 3.5s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-style: normal;
+}
 </style>
 </head>
 <body>
@@ -1510,6 +1609,7 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
 
 <!-- Mobile bottom thumb-zone flavor switcher (hidden on desktop via CSS) -->
 <div id="mobile-flavor-bar" role="tablist" aria-label="Choose flavor">
+  <span class="mfb-arrow" aria-hidden="true">‹</span>
   <button class="mfb-btn active" data-mfb="0" role="tab" aria-selected="true">
     <span class="mfb-dot"></span>Regular
   </button>
@@ -1519,6 +1619,7 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
   <button class="mfb-btn" data-mfb="2" role="tab" aria-selected="false">
     <span class="mfb-dot"></span>Blackberry
   </button>
+  <span class="mfb-arrow" aria-hidden="true">›</span>
 </div>
 
 <!-- Sound nudge pill — disappears after first tap/click -->
@@ -1784,7 +1885,7 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
       <div class="ps-grid">
         <div>
           <em class="ps-eyebrow reveal">Since 1885</em>
-          <h2 class="ps-title reveal">Born in<br>Waco, Texas.</h2>
+          <h2 class="ps-title reveal">Born in<br><em>Waco, Texas.</em></h2>
           <div class="ps-body reveal" data-delay="1">
             <p>Pharmacist <span class="kw">Charles Alderton</span> created Dr Pepper at Morrison's Old Corner Drug Store, experimenting with fruit syrups until he landed a combination unlike anything the world had tasted.</p>
             <p>The result was a bold, impossibly complex blend of <span class="kw-xl">23 flavors</span> — a formula so unique it defies category. <span class="kw">Not a cola, not a root beer, not a fruit soda.</span> Dr Pepper is simply Dr Pepper.</p>
@@ -1824,7 +1925,7 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
     <div class="ing-header">
       <div>
         <em class="section-eyebrow reveal">What's Inside</em>
-        <h2 class="section-title reveal">Crafted<br>with Purpose.</h2>
+        <h2 class="section-title reveal">Crafted<br>with <em>Purpose.</em></h2>
       </div>
       <p class="ing-header-right reveal" data-delay="1">Six core ingredients. Twenty-three flavor notes. One unforgettable taste.</p>
     </div>
@@ -2176,12 +2277,21 @@ function secTransform(op, dir) {
 }
 
 /* ─── RAF LOOP ───────────────────────────────────────────── */
+// KEY INSIGHT: on mobile, reading window.scrollY INSIDE the RAF callback
+// guarantees the canvas is in perfect sync with the display refresh.
+// iOS interpolates scroll position per-frame; reading it in a scroll event
+// is asynchronous and can be 1-2 frames stale. RAF = frame-perfect.
 function startRAF() {
   if (rafId) return;
   function tick() {
-    // Mobile: instant — no lerp fighting native scroll physics
-    // Desktop: smooth lerp for the scrollytelling feel
-    lerpP = IS_MOBILE ? rawP : lerp(lerpP, rawP, .055);
+    if (IS_MOBILE) {
+      const ms = driver.offsetHeight - window.innerHeight;
+      if (ms > 0) { maxScroll = ms; rawP = clamp(window.scrollY / ms, 0, 1); }
+      lerpP = rawP;
+    } else {
+      lerpP = lerp(lerpP, rawP, .055);
+    }
+
     const v = VARIANTS[cv];
     const fi = clamp(Math.floor(rawP * v.frameCount), 0, v.frameCount-1);
     if (fi !== activeF) { activeF = fi; drawF(fi); }
@@ -2247,12 +2357,10 @@ function startRAF() {
 let lenis;
 function initLenis() {
   if (IS_MOBILE) {
-    // ── MOBILE: native scroll — no virtual layer fighting iOS momentum ──
-    // Native scroll gives free inertia, rubber-band, and 120fps ProMotion
+    // rawP is now read inside the RAF tick — frame-perfect sync with iOS display.
+    // Scroll listener only does nav state (cheap, no drawF calls here).
     window.addEventListener('scroll', () => {
-      maxScroll = driver.offsetHeight - window.innerHeight;
       const s = window.scrollY;
-      rawP = clamp(s / maxScroll, 0, 1);
       if (s > 40) topNav.classList.add('frosted');
       else        topNav.classList.remove('frosted');
     }, { passive: true });
@@ -2600,6 +2708,19 @@ function init() {
     },
     startExperience // desktop: wait for 100%
   );
+
+  // AUTO-DEMO SWIPE: after 2.8s on mobile, the canvas physically jiggles
+  // left → right → settle. This is the single most effective way to show
+  // "this content can be swiped" — no tooltip can beat a real physical demo.
+  if (IS_MOBILE) {
+    setTimeout(() => {
+      if (document.body.classList.contains('swiped')) return;
+      canvas.classList.add('demo-swipe');
+      canvas.addEventListener('animationend', () => {
+        canvas.classList.remove('demo-swipe');
+      }, { once: true });
+    }, 2800);
+  }
 }
 
 init();
