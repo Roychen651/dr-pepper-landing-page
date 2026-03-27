@@ -1,0 +1,2511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dr Pepper — 23 Flavors. One Legend.</title>
+
+<!-- Premium typography -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- GSAP + ScrollTrigger (industry standard for Awwwards sites) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<!-- Lenis smooth scroll -->
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+
+<style>
+/* ═══════════════════════════════════════════════════
+   TOKENS & RESET
+═══════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --accent:     #711F25;
+  --accent-rgb: 113,31,37;
+  --bg:         #050505;
+  --fg:         #ffffff;
+  --fg70:       rgba(255,255,255,.7);
+  --fg40:       rgba(255,255,255,.4);
+  --fg12:       rgba(255,255,255,.12);
+  --fg06:       rgba(255,255,255,.06);
+  --nav-h:      68px;
+  --ease:       cubic-bezier(.16,1,.3,1);
+}
+
+html { scroll-behavior: auto; } /* Lenis handles smooth scroll */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════════════
+   LOADER
+═══════════════════════════════════════════════════ */
+#loader {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #000;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 32px;
+}
+#loader.out { opacity: 0; visibility: hidden; transition: opacity .8s .2s, visibility .8s .2s; }
+
+.l-logo {
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
+  font-weight: 900; letter-spacing: -.04em; text-transform: uppercase;
+}
+.l-logo em { color: var(--accent); font-style: normal; }
+.l-logo-sub {
+  text-align: center;
+  font-size: .62rem; font-weight: 500; letter-spacing: .28em;
+  color: rgba(255,255,255,.25); text-transform: uppercase;
+  margin-top: -24px;
+}
+.l-track {
+  width: min(420px, 75vw); height: 1px;
+  background: rgba(255,255,255,.08);
+  position: relative; overflow: hidden; border-radius: 1px;
+}
+.l-fill {
+  position: absolute; top: 0; left: 0; height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--accent), rgba(255,255,255,.6));
+  transition: width .07s linear; border-radius: 1px;
+}
+.l-pct {
+  font-size: .65rem; font-weight: 600; letter-spacing: .22em;
+  color: rgba(255,255,255,.3); font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 250;
+  height: var(--nav-h);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 clamp(20px, 4vw, 48px);
+}
+nav.frosted {
+  background: rgba(5,5,5,.75);
+  backdrop-filter: blur(28px) saturate(2);
+  -webkit-backdrop-filter: blur(28px) saturate(2);
+  border-bottom: 1px solid var(--fg06);
+}
+.nav-logo {
+  font-size: .92rem; font-weight: 900; letter-spacing: -.01em;
+  text-transform: uppercase; color: var(--fg); text-decoration: none;
+  flex-shrink: 0;
+}
+.nav-logo em { color: var(--accent); font-style: normal; }
+
+/* Center flavor pill */
+.nav-flavors {
+  display: flex; align-items: center; gap: 2px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--fg12);
+  border-radius: 100px; padding: 3px;
+}
+.flavor-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--fg40);
+  padding: 8px 20px; border-radius: 100px;
+  transition: color .25s, background .25s; white-space: nowrap;
+}
+.flavor-btn:hover { color: var(--fg); }
+.flavor-btn.active { background: var(--accent); color: #fff; }
+
+/* ── btn-spin (PRIMARY — spinning ring border) ────── */
+.btn-spin {
+  position: relative; display: inline-flex;
+  align-items: center; justify-content: center;
+  width: 200px; height: 50px;
+  border: none; border-radius: 100px;
+  background: transparent; cursor: pointer;
+  overflow: hidden; isolation: isolate;
+  transition: transform .25s var(--ease);
+  flex-shrink: 0;
+}
+.btn-spin:hover { transform: scale(1.04); }
+.btn-spin:active { transform: scale(.97); }
+.bs-ring {
+  position: absolute;
+  width: 200%; height: 400%;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  background: conic-gradient(
+    from 0deg,
+    var(--accent) 0deg,
+    rgba(255,255,255,.9) 45deg,
+    rgba(255,255,255,.15) 90deg,
+    var(--accent) 180deg,
+    rgba(255,255,255,.5) 225deg,
+    rgba(255,255,255,.1) 270deg,
+    var(--accent) 360deg
+  );
+  animation: ring-spin 2.8s linear infinite;
+  z-index: 0;
+}
+@keyframes ring-spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+.bs-fill {
+  position: absolute; inset: 2px; border-radius: 100px;
+  background: #050505; z-index: 1;
+  transition: background .3s;
+}
+.btn-spin:hover .bs-fill { background: rgba(var(--accent-rgb),.15); }
+.bs-label {
+  position: relative; z-index: 2;
+  font-size: .72rem; font-weight: 800; letter-spacing: .16em;
+  text-transform: uppercase; white-space: nowrap;
+  /* Shimmer sweep */
+  background: linear-gradient(100deg, rgba(255,255,255,.7) 0%, #fff 40%, rgba(255,255,255,.55) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer-txt 3.5s linear infinite;
+}
+@keyframes shimmer-txt {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ── btn-fill (SECONDARY — solid shimmer) ─────────── */
+.btn-fill {
+  position: relative; display: inline-flex;
+  align-items: center; justify-content: center;
+  padding: 14px 36px; border: none; border-radius: 100px;
+  background: var(--accent); color: #fff;
+  font-size: .72rem; font-weight: 800; letter-spacing: .14em;
+  text-transform: uppercase; cursor: pointer; overflow: hidden;
+  transition: transform .25s var(--ease), box-shadow .3s, background .8s;
+  flex-shrink: 0;
+}
+.btn-fill:hover {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 16px 50px rgba(var(--accent-rgb),.55);
+}
+.btn-fill:active { transform: scale(.97); }
+.btn-fill::before {
+  content: '';
+  position: absolute; top: -50%; left: -120%;
+  width: 45%; height: 200%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent);
+  transform: skewX(-20deg);
+  animation: fill-sweep 3s ease-in-out infinite;
+  animation-delay: 1.2s;
+}
+@keyframes fill-sweep {
+  0%,100% { left: -120%; opacity: 0; }
+  8% { opacity: 1; }
+  55% { left: 160%; opacity: 0; }
+}
+
+/* Nav right */
+.nav-right { display: flex; gap: 12px; align-items: center; }
+
+/* ═══════════════════════════════════════════════════
+   HERO SCROLL DRIVER + PIN
+═══════════════════════════════════════════════════ */
+#scroll-driver { position: relative; }
+
+#hero-pin {
+  position: sticky; top: 0;
+  width: 100%; height: 100vh;
+  overflow: hidden; background: var(--bg);
+}
+
+/* Premium scrolling ticker strip — Awwwards level */
+.hero-ticker-wrap {
+  position: absolute; left: 0; right: 0;
+  top: 50%; transform: translateY(-50%);
+  z-index: 5; pointer-events: none;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%);
+}
+.hero-ticker {
+  display: flex; white-space: nowrap;
+  animation: ticker-move 36s linear infinite;
+}
+.hero-ticker-inner {
+  display: inline-flex; gap: 0; flex-shrink: 0;
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(4.5rem, 11vw, 10rem);
+  font-weight: 900; letter-spacing: -.04em;
+  text-transform: uppercase; user-select: none;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255,255,255,.055);
+  padding: 0;
+}
+.hero-ticker-inner .ticker-dot {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(var(--accent-rgb),.25);
+  padding: 0 clamp(16px,2vw,32px);
+}
+@keyframes ticker-move {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Ambient glow */
+.ambient-glow {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 60vw; height: 60vh;
+  border-radius: 50%;
+  background: var(--accent);
+  filter: blur(120px); opacity: .2; z-index: 1;
+  pointer-events: none;
+  transition: background 1.2s var(--ease);
+  animation: glow-pulse 5s ease-in-out infinite;
+}
+@keyframes glow-pulse {
+  0%,100% { opacity:.18; transform:translate(-50%,-50%) scale(1); }
+  50%      { opacity:.28; transform:translate(-50%,-50%) scale(1.1); }
+}
+
+/* Canvas */
+#hero-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; display: block; z-index: 2;
+  filter: contrast(1.06) saturate(1.18) brightness(1.02);
+}
+
+/* Vignette — stronger on sides so can floats */
+.hero-vignette {
+  position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 80% at 50% 50%, transparent 40%, rgba(5,5,5,.9) 100%);
+}
+
+/* Mobile gradient "safe zone" for text */
+.hero-mobile-fade {
+  display: none;
+  position: absolute; inset: 0; z-index: 4; pointer-events: none;
+  background: linear-gradient(to top,
+    rgba(5,5,5,1) 0%,
+    rgba(5,5,5,.96) 15%,
+    rgba(5,5,5,.80) 32%,
+    rgba(5,5,5,.30) 52%,
+    rgba(5,5,5,.05) 68%,
+    transparent 78%);
+}
+
+/* ═══════════════════════════════════════════════════
+   SCROLL SECTIONS (hero text overlays)
+═══════════════════════════════════════════════════ */
+.scroll-section {
+  position: absolute; inset: 0; z-index: 10;
+  display: flex; align-items: center;
+  padding: 0 clamp(20px, 5vw, 72px);
+  pointer-events: none; opacity: 0;
+  will-change: opacity, transform;
+}
+
+/* S1 — HERO */
+.ss-hero {
+  flex-direction: column; justify-content: flex-end; align-items: flex-start;
+  padding-bottom: clamp(60px,10vh,100px);
+}
+.ss-hero-inner {
+  max-width: 700px;
+  /* Glass backdrop so text pops on any frame color */
+  background: rgba(5,5,5,.35);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 20px;
+  padding: 36px 40px 40px;
+}
+.ss-eyebrow {
+  display: block;
+  font-size: .62rem; font-weight: 700; letter-spacing: .26em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 18px;
+  transition: color .8s;
+}
+.ss-title {
+  font-size: clamp(2.4rem, 5.2vw, 5.2rem);
+  font-weight: 900; line-height: .92; letter-spacing: -.04em;
+  color: #fff; margin-bottom: 22px;
+  text-shadow:
+    0 1px 0 rgba(0,0,0,.8),
+    0 4px 24px rgba(0,0,0,.9),
+    0 8px 60px rgba(0,0,0,.6);
+}
+.ss-title em { font-style: normal; color: var(--accent); transition: color .8s; }
+/* overflow guard on the glass card */
+.ss-hero-inner { overflow: hidden; }
+.ss-sub {
+  font-size: clamp(.82rem, 1.5vw, 1rem);
+  font-weight: 400; color: rgba(255,255,255,.85); line-height: 1.75;
+  max-width: 400px;
+  text-shadow: 0 1px 8px rgba(0,0,0,.9);
+}
+
+/* S2 — BLEND (left glass card) */
+.ss-blend { justify-content: flex-start; align-items: center; }
+.ss-card {
+  background: rgba(5,5,5,.78);
+  backdrop-filter: blur(40px) saturate(1.8);
+  -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 20px; padding: 40px 36px;
+  max-width: 360px; pointer-events: auto;
+  box-shadow: 0 8px 48px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.ss-card-num {
+  font-size: 4.5rem; font-weight: 900; line-height: 1;
+  letter-spacing: -.06em;
+  color: rgba(var(--accent-rgb),.4);
+  margin-bottom: 6px; transition: color .8s;
+}
+.ss-card-title {
+  font-size: clamp(1.4rem, 2.8vw, 2rem);
+  font-weight: 800; line-height: 1.05; letter-spacing: -.025em;
+  color: #fff;
+  text-shadow: 0 1px 12px rgba(0,0,0,.5);
+  margin-bottom: 14px;
+}
+.ss-card-body { font-size: .85rem; color: rgba(255,255,255,.82); line-height: 1.8; }
+
+/* S3 — REFRESH (right glass card) */
+.ss-refresh { justify-content: flex-end; align-items: center; }
+.ss-refresh .ss-card { text-align: right; }
+.ss-refresh .ss-card-num { text-align: right; }
+
+/* S4 — CTA (center) */
+.ss-cta {
+  flex-direction: column; justify-content: center; align-items: center;
+  text-align: center;
+}
+.ss-cta-glass {
+  background: rgba(5,5,5,.72);
+  backdrop-filter: blur(40px) saturate(1.8);
+  -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 28px;
+  padding: 56px clamp(32px,6vw,80px) 60px;
+  box-shadow: 0 12px 60px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.1);
+  display: flex; flex-direction: column; align-items: center;
+  pointer-events: auto;
+}
+.ss-cta-title {
+  font-size: clamp(2.5rem, 6.5vw, 5.5rem);
+  font-weight: 900; line-height: .95; letter-spacing: -.04em;
+  margin-bottom: 14px; color: #fff;
+  text-shadow:
+    0 2px 8px rgba(0,0,0,.9),
+    0 8px 40px rgba(0,0,0,.7);
+}
+.ss-cta-sub {
+  font-size: .7rem; color: rgba(255,255,255,.55); letter-spacing: .22em;
+  text-transform: uppercase; margin-bottom: 40px;
+}
+
+/* Scroll progress */
+.spl {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+  height: 2px; background: var(--accent);
+  transform-origin: left; transform: scaleX(0);
+  transition: background .8s; pointer-events: none;
+}
+
+/* Flavor dots */
+.flavor-dots {
+  position: absolute; bottom: 28px; left: 50%;
+  transform: translateX(-50%); z-index: 10;
+  display: flex; gap: 8px; align-items: center;
+}
+.flavor-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--fg40); cursor: pointer; pointer-events: auto;
+  transition: background .35s, transform .35s, width .35s;
+  border-radius: 3px;
+}
+.flavor-dot.active {
+  background: var(--accent); transform: none;
+  width: 20px;
+}
+
+/* ═══════════════════════════════════════════════════
+   FLAVOR SHOWCASE — inspired by Juicy + Cools
+═══════════════════════════════════════════════════ */
+#flavors-showcase {
+  background: #030303;
+  border-top: 1px solid var(--fg06);
+}
+.fs-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+}
+.fs-panel {
+  position: relative; overflow: hidden;
+  min-height: 72vh;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 56px 48px;
+  border-right: 1px solid var(--fg06);
+  cursor: pointer;
+  transition: background .5s;
+}
+.fs-panel:last-child { border-right: none; }
+/* Bottom radial glow per panel */
+.fsp-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background: radial-gradient(ellipse 100% 60% at 50% 110%,
+    rgba(var(--fc-rgb), .35) 0%, transparent 65%);
+  transition: opacity .5s;
+  opacity: .7;
+}
+.fs-panel:hover .fsp-bg { opacity: 1; }
+/* Top faded number watermark */
+.fsp-watermark {
+  position: absolute; top: -10px; right: 32px;
+  font-size: clamp(5rem, 14vw, 10rem);
+  font-weight: 900; letter-spacing: -.06em;
+  color: rgba(var(--fc-rgb), .08);
+  line-height: 1; pointer-events: none;
+  z-index: 1; user-select: none;
+  transition: color .5s;
+}
+.fs-panel:hover .fsp-watermark { color: rgba(var(--fc-rgb), .14); }
+
+/* Content */
+.fsp-content { position: relative; z-index: 2; }
+.fsp-eyebrow {
+  font-size: .6rem; font-weight: 700; letter-spacing: .24em;
+  text-transform: uppercase; color: rgba(var(--fc-rgb-light), .7);
+  margin-bottom: 10px; display: block;
+}
+.fsp-name {
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  font-weight: 900; line-height: .95; letter-spacing: -.04em;
+  margin-bottom: 16px;
+}
+.fsp-divider {
+  width: 32px; height: 1px;
+  background: rgba(var(--fc-rgb), .5);
+  margin-bottom: 18px;
+  transition: width .4s var(--ease), background .5s;
+}
+.fs-panel:hover .fsp-divider { width: 64px; }
+.fsp-desc {
+  font-size: .85rem; color: var(--fg70); line-height: 1.75;
+  margin-bottom: 32px; max-width: 260px;
+}
+.fsp-btn { background: rgba(var(--fc-rgb), 1); transition: background .8s; }
+
+/* ═══════════════════════════════════════════════════
+   FEATURE ROW (Boosty-inspired)
+═══════════════════════════════════════════════════ */
+#feature-row {
+  border-top: 1px solid var(--fg06);
+  border-bottom: 1px solid var(--fg06);
+}
+.fr-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  max-width: 1400px; margin: 0 auto;
+}
+.fr-cell {
+  padding: 56px clamp(24px, 4vw, 60px);
+  border-right: 1px solid var(--fg06);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.fr-cell:last-child { border-right: none; }
+.fr-num {
+  font-size: clamp(2.8rem, 5vw, 4.5rem);
+  font-weight: 900; letter-spacing: -.04em;
+  color: var(--accent); line-height: 1;
+  transition: color .8s;
+}
+.fr-label {
+  font-size: .65rem; font-weight: 700; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--fg40);
+}
+.fr-desc { font-size: .82rem; color: var(--fg70); line-height: 1.65; max-width: 220px; }
+
+/* ═══════════════════════════════════════════════════
+   PRODUCT STORY
+═══════════════════════════════════════════════════ */
+.content-wrap { max-width: 1400px; margin: 0 auto; padding: 0 clamp(20px,6vw,80px); }
+
+#product-story {
+  padding: 130px 0;
+}
+.ps-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: center;
+}
+.ps-eyebrow {
+  font-size: .62rem; font-weight: 700; letter-spacing: .26em;
+  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 16px; display: block; transition: color .8s;
+}
+.ps-title {
+  font-size: clamp(2.4rem, 5vw, 4.5rem);
+  font-weight: 900; line-height: .95; letter-spacing: -.04em;
+  margin-bottom: 28px;
+}
+.ps-body { font-size: .95rem; color: var(--fg70); line-height: 1.85; }
+.ps-body p + p { margin-top: 14px; }
+
+/* Stats grid */
+.ps-stats {
+  margin-top: 56px;
+  display: grid; grid-template-columns: repeat(3,1fr);
+  border: 1px solid var(--fg12);
+}
+.ps-stat {
+  padding: 28px 24px;
+  border-right: 1px solid var(--fg12);
+}
+.ps-stat:last-child { border-right: none; }
+.ps-stat-num {
+  font-size: 3rem; font-weight: 900; letter-spacing: -.05em;
+  color: var(--accent); line-height: 1; transition: color .8s;
+}
+.ps-stat-label {
+  font-size: .6rem; font-weight: 700; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--fg40); margin-top: 6px;
+}
+
+/* Right visual panel */
+.ps-visual {
+  position: relative;
+  aspect-ratio: 4/5; border-radius: 2px; overflow: hidden;
+  background: #0c0305;
+  display: flex; align-items: center; justify-content: center;
+}
+.ps-visual-glow {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 75%; height: 75%; border-radius: 50%;
+  background: var(--accent); filter: blur(90px); opacity: .16;
+  transition: background .8s;
+  animation: glow-pulse 6s ease-in-out infinite 1s;
+}
+.ps-visual-content { position: relative; z-index: 1; text-align: center; }
+.ps-visual-icon { font-size: 5rem; line-height: 1; display: block; }
+.ps-visual-label {
+  display: block; margin-top: 14px;
+  font-size: .62rem; font-weight: 600; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--fg40);
+}
+
+/* ═══════════════════════════════════════════════════
+   INGREDIENTS — magic ring cards
+═══════════════════════════════════════════════════ */
+#ingredients-section {
+  background: #080808;
+  border-top: 1px solid var(--fg06);
+  padding: 120px 0;
+}
+.ing-header {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 72px; gap: 32px;
+}
+.ing-header-right {
+  font-size: .8rem; color: var(--fg40); max-width: 240px;
+  text-align: right; line-height: 1.7;
+}
+.section-eyebrow {
+  font-size: .62rem; font-weight: 700; letter-spacing: .26em;
+  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 14px; display: block; transition: color .8s;
+}
+.section-title {
+  font-size: clamp(2rem, 4.5vw, 4rem);
+  font-weight: 900; line-height: .95; letter-spacing: -.04em;
+}
+
+/* Magic cards grid */
+.ing-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 16px;
+}
+.mc-wrap {
+  position: relative; isolation: isolate;
+  border-radius: 4px; overflow: hidden;
+  cursor: default;
+  transition: transform .4s var(--ease);
+}
+.mc-wrap:hover { transform: translateY(-6px); }
+/* The spinning ring (hidden by default, revealed on hover) */
+.mc-ring {
+  position: absolute;
+  width: 200%; height: 400%;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(var(--accent-rgb),.9) 50deg,
+    transparent 110deg
+  );
+  animation: mc-ring-spin 4s linear infinite paused;
+  opacity: 0; z-index: 0;
+  transition: opacity .4s;
+}
+.mc-wrap:hover .mc-ring { opacity: 1; animation-play-state: running; }
+@keyframes mc-ring-spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+/* Dark fill covers the interior (creates border-only effect) */
+.mc-inner {
+  position: relative; z-index: 1;
+  background: #0a0a0a;
+  margin: 1.5px; border-radius: 3px;
+  padding: 44px 36px 40px;
+  border: 1px solid var(--fg06);
+  transition: border-color .4s;
+  min-height: 220px;
+}
+.mc-wrap:hover .mc-inner { border-color: transparent; }
+/* Background watermark number */
+.mc-bg-num {
+  position: absolute; right: 16px; bottom: 8px;
+  font-size: 7rem; font-weight: 900; letter-spacing: -.06em;
+  color: rgba(255,255,255,.028); line-height: 1;
+  pointer-events: none; user-select: none;
+  transition: color .4s;
+}
+.mc-wrap:hover .mc-bg-num { color: rgba(var(--accent-rgb),.06); }
+.mc-num {
+  font-size: .6rem; font-weight: 700; letter-spacing: .2em;
+  color: var(--fg40); margin-bottom: 20px; display: block;
+}
+.mc-name {
+  font-size: 1.05rem; font-weight: 800; letter-spacing: -.01em;
+  margin-bottom: 12px;
+}
+.mc-desc { font-size: .82rem; color: var(--fg70); line-height: 1.7; }
+
+/* ═══════════════════════════════════════════════════
+   NUTRITION
+═══════════════════════════════════════════════════ */
+#nutrition-section { padding: 130px 0; }
+.nut-grid { display: grid; grid-template-columns: auto 1fr; gap: 80px; align-items: start; }
+
+/* Nutrition label — actual FDA style */
+.nl {
+  background: #fff; color: #000;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  padding: 12px; width: 280px; flex-shrink: 0;
+}
+.nl h2 { font-size: 2.4rem; font-weight: 900; line-height: 1; }
+.nl-srv { font-size: .68rem; border-top: 8px solid #000; border-bottom: 1px solid #000; padding: 4px 0; margin: 6px 0; }
+.nl-cals { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid #000; padding-bottom: 2px; margin-bottom: 3px; }
+.nl-cals-lbl { font-size: .78rem; font-weight: 600; }
+.nl-cals-num { font-size: 3.2rem; font-weight: 900; line-height: 1; }
+.nl-dv { font-size: .55rem; text-align: right; border-top: 4px solid #000; padding: 2px 0; }
+.nl-r { display: flex; justify-content: space-between; font-size: .7rem; padding: 2px 0; border-bottom: 1px solid rgba(0,0,0,.2); }
+.nl-r strong { font-weight: 700; }
+.nl-r.thick { border-top: 4px solid #000; }
+.nl-r.top8 { border-top: 8px solid #000; }
+.nl-ind { padding-left: 14px; }
+.nl-ind2 { padding-left: 28px; }
+.nl-fn { font-size: .58rem; color: rgba(0,0,0,.5); margin-top: 8px; line-height: 1.5; }
+
+.nut-text .section-eyebrow { margin-bottom: 14px; }
+.nut-title { font-size: clamp(2rem, 4vw, 3.8rem); font-weight: 900; line-height: .95; letter-spacing: -.04em; margin-bottom: 28px; }
+.nut-body { font-size: .95rem; color: var(--fg70); line-height: 1.85; }
+.nut-body p + p { margin-top: 16px; }
+
+/* ═══════════════════════════════════════════════════
+   REVIEWS
+═══════════════════════════════════════════════════ */
+#reviews-section {
+  background: #080808;
+  border-top: 1px solid var(--fg06);
+  padding: 120px 0;
+}
+.rev-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 64px; gap: 24px; }
+.rev-rating { text-align: right; }
+.rev-rating-num {
+  font-size: 4rem; font-weight: 900; letter-spacing: -.05em;
+  color: var(--accent); line-height: 1; transition: color .8s;
+}
+.rev-rating-stars { color: var(--accent); font-size: .9rem; transition: color .8s; }
+.rev-rating-count { font-size: .68rem; color: var(--fg40); margin-top: 4px; }
+
+.review-item { border-top: 1px solid var(--fg06); }
+.review-item:last-child { border-bottom: 1px solid var(--fg06); }
+.review-toggle {
+  width: 100%; background: none; border: none; color: var(--fg);
+  text-align: left; padding: 28px 0;
+  display: flex; justify-content: space-between; align-items: center;
+  cursor: pointer; gap: 20px;
+}
+.rev-meta { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
+.rev-name { font-size: .75rem; font-weight: 600; letter-spacing: .04em; color: var(--fg70); }
+.rev-stars { color: var(--accent); font-size: .75rem; transition: color .8s; }
+.rev-headline { font-size: .95rem; font-weight: 700; flex: 1; }
+.rev-chevron {
+  width: 18px; height: 18px; color: var(--fg40); flex-shrink: 0;
+  transition: transform .35s var(--ease);
+}
+.review-item.open .rev-chevron { transform: rotate(180deg); }
+.review-body {
+  font-size: .88rem; color: var(--fg70); line-height: 1.8;
+  max-height: 0; overflow: hidden;
+  transition: max-height .5s var(--ease), padding-bottom .5s;
+}
+.review-item.open .review-body { max-height: 200px; padding-bottom: 28px; }
+
+/* ═══════════════════════════════════════════════════
+   CTA BANNER
+═══════════════════════════════════════════════════ */
+#cta-banner {
+  padding: 140px clamp(20px,6vw,80px);
+  text-align: center;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 50%,
+      rgba(var(--accent-rgb),.18) 0%, transparent 65%),
+    #030303;
+  border-top: 1px solid var(--fg06);
+  transition: background .8s;
+}
+.cta-eyebrow {
+  font-size: .62rem; font-weight: 700; letter-spacing: .28em;
+  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 20px; display: block; transition: color .8s;
+}
+.cta-title {
+  font-size: clamp(3rem, 7vw, 6.5rem);
+  font-weight: 900; line-height: .92; letter-spacing: -.05em;
+  margin-bottom: 12px;
+}
+.cta-sub { font-size: .85rem; color: var(--fg40); margin-bottom: 48px; }
+.cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+/* ═══════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════ */
+footer { background: #000; border-top: 1px solid rgba(255,255,255,.05); }
+.footer-inner { max-width: 1400px; margin: 0 auto; padding: 80px clamp(20px,6vw,80px) 40px; }
+.footer-top {
+  display: grid; grid-template-columns: 1.5fr repeat(3,1fr); gap: 60px;
+  padding-bottom: 60px; border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.footer-brand { font-size: 1.3rem; font-weight: 900; text-transform: uppercase; letter-spacing: -.01em; }
+.footer-brand em { color: var(--accent); font-style: normal; transition: color .8s; }
+.footer-tag { font-size: .75rem; color: rgba(255,255,255,.25); margin-top: 8px; line-height: 1.65; }
+.footer-col-h { font-size: .6rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: 20px; }
+.footer-col ul { list-style: none; }
+.footer-col li + li { margin-top: 10px; }
+.footer-col a { font-size: .8rem; color: rgba(255,255,255,.3); text-decoration: none; transition: color .2s; }
+.footer-col a:hover { color: rgba(255,255,255,.75); }
+.footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 28px; gap: 16px; flex-wrap: wrap; }
+.footer-legal { font-size: .65rem; color: rgba(255,255,255,.18); }
+.footer-disclaimer {
+  margin-top: 28px;
+  padding: 20px 24px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+  background: rgba(255,255,255,.025);
+}
+.footer-disclaimer p {
+  font-size: .62rem; line-height: 1.7;
+  color: rgba(255,255,255,.28);
+}
+.footer-disclaimer strong { color: rgba(255,255,255,.45); }
+
+/* ═══════════════════════════════════════════════════
+   REVEAL (GSAP handles class, CSS defines initial)
+═══════════════════════════════════════════════════ */
+.reveal { opacity: 0; }
+
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════ */
+@media (max-width: 1100px) {
+  .ps-grid { grid-template-columns: 1fr; gap: 60px; }
+  .ps-visual { aspect-ratio: 16/7; }
+  .nut-grid { grid-template-columns: 1fr; }
+  .nl { width: 100%; max-width: 320px; }
+  .footer-top { grid-template-columns: 1fr 1fr; }
+  .ing-grid { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 768px) {
+  nav { padding: 0 16px; }
+  .nav-flavors { gap: 0; }
+  .flavor-btn { padding: 7px 12px; font-size: .6rem; }
+  .fs-grid { grid-template-columns: 1fr; }
+  .fs-panel { min-height: 56vw; border-right: none; border-bottom: 1px solid var(--fg06); }
+  /* ── FEATURE ROW ── */
+  .fr-grid { grid-template-columns: 1fr; }
+  .fr-cell {
+    border-right: none; border-bottom: 1px solid var(--fg06);
+    padding: 36px 24px;
+    align-items: center; text-align: center;
+  }
+  .fr-cell:last-child { border-bottom: none; }
+  .fr-desc { max-width: 280px; text-align: center; margin: 0 auto; }
+
+  /* ── INGREDIENTS ── */
+  .ing-grid { grid-template-columns: 1fr; }
+  .ing-header {
+    flex-direction: column; gap: 12px;
+    align-items: center; text-align: center;
+  }
+  .ing-header-right { text-align: center; max-width: 100%; }
+  .ing-header .section-eyebrow,
+  .ing-header .section-title { text-align: center; }
+  .mc-inner { text-align: center; }
+  .mc-num { text-align: center; }
+
+  /* ── REVIEWS ── */
+  .rev-header { flex-direction: column; gap: 16px; align-items: center; text-align: center; }
+  .rev-rating { text-align: center; }
+  .section-eyebrow { text-align: center; }
+  .section-title   { text-align: center; }
+
+  /* ── FOOTER ── */
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 36px; }
+
+  /* ── MOBILE HERO FIX ── */
+  .hero-mobile-fade { display: block; }
+
+  /* S1 — hero text card */
+  .ss-hero { padding-bottom: clamp(36px,6vh,56px); padding-left: 16px; padding-right: 16px; }
+  .ss-hero-inner { padding: 24px 22px 28px; border-radius: 16px; }
+  .ss-title { font-size: clamp(1.9rem, 8.5vw, 2.8rem); margin-bottom: 14px; }
+  .ss-eyebrow { margin-bottom: 10px; }
+  .ss-sub { font-size: .78rem; max-width: 100%; }
+
+  /* S2 / S3 — side cards → bottom of screen, left-aligned */
+  .ss-blend  { justify-content: center; align-items: flex-end; padding: 0 12px 72px; }
+  .ss-refresh{ justify-content: center; align-items: flex-end; padding: 0 12px 72px; }
+  .ss-card { max-width: 100%; text-align: left; padding: 28px 24px; }
+  .ss-refresh .ss-card     { text-align: left; }
+  .ss-refresh .ss-card-num { text-align: left; }
+  .ss-card-num   { font-size: 2.8rem; }
+  .ss-card-title { font-size: 1.3rem; }
+  .ss-card-body  { font-size: .82rem; }
+
+  /* S4 — CTA, centered is correct for call-to-action */
+  .ss-cta-glass { padding: 36px 24px 40px; border-radius: 20px; }
+  .ss-cta-title { font-size: clamp(1.9rem, 8.5vw, 3rem); }
+  .btn-spin { width: 180px; height: 46px; }
+
+  /* ── FLAVOR PANELS ── */
+  .fs-panel { padding: 40px 24px; min-height: 56vw; border-right: none; border-bottom: 1px solid var(--fg06); }
+  .fsp-name { font-size: clamp(2rem, 7vw, 3rem); }
+
+  /* ── PRODUCT STORY ── */
+  .ps-grid { grid-template-columns: 1fr; gap: 48px; }
+  .ps-visual { aspect-ratio: 16/7; }
+  .ps-title { font-size: clamp(2rem, 8vw, 3.2rem); }
+
+  /* ── SECTION PADDING ── */
+  #product-story    { padding: 80px 0; }
+  #ingredients-section { padding: 80px 0; }
+  #nutrition-section{ padding: 80px 0; }
+  #reviews-section  { padding: 80px 0; }
+  .content-wrap     { padding: 0 clamp(16px, 5vw, 32px); }
+
+  /* ── SHOW HAMBURGER, HIDE DESKTOP NAV ITEMS ── */
+  .nav-hamburger          { display: flex !important; }
+  .nav-right .btn-spin    { display: none !important; }
+  .nav-flavors            { display: none !important; }
+}
+@media (max-width: 480px) {
+  .nav-flavors { display: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════
+   CUSTOM SCROLLBAR — unique pill design
+═══════════════════════════════════════════════════ */
+/* Hide native scrollbar (webkit) */
+::-webkit-scrollbar { width: 0px; }
+
+/* Custom fixed scrollbar */
+#csb {
+  position: fixed; right: 12px; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 48vh;
+  z-index: 600;
+  pointer-events: none;
+  border-radius: 10px;
+  background: rgba(255,255,255,.05);
+  overflow: visible;
+}
+#csb-thumb {
+  position: absolute; left: -3px;
+  width: 9px; height: 40px;
+  background: linear-gradient(to bottom,
+    rgba(var(--accent-rgb),1) 0%,
+    rgba(255,255,255,.5) 50%,
+    rgba(var(--accent-rgb),.6) 100%
+  );
+  border-radius: 6px;
+  transition: background .8s, height .2s, width .2s, left .2s;
+  box-shadow: 0 0 12px rgba(var(--accent-rgb),.7), 0 0 4px rgba(255,255,255,.3);
+}
+#csb-thumb:hover { width: 12px; left: -4.5px; }
+/* Show native scrollbar outline on mobile for UX */
+@media (max-width: 768px) { #csb { display: none; } ::-webkit-scrollbar { width: 2px; } ::-webkit-scrollbar-track { background: #050505; } ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 1px; } }
+
+/* ═══════════════════════════════════════════════════
+   PARTICLE CANVAS (background atmosphere)
+═══════════════════════════════════════════════════ */
+#particle-canvas {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  opacity: .75;
+}
+
+/* ═══════════════════════════════════════════════════
+   PREMIUM DISPLAY TYPOGRAPHY — Syne
+═══════════════════════════════════════════════════ */
+h1, h2, h3,
+.l-logo, .nav-logo,
+.ss-title, .ss-cta-title,
+.cta-title, .ps-title, .nut-title,
+.section-title, .fsp-name,
+.ss-card-title, .mc-name,
+.fr-num, .ps-stat-num,
+.rev-rating-num {
+  font-family: 'Syne', -apple-system, sans-serif;
+}
+
+/* Gradient accent text — white-dominant shimmer, always readable */
+.ss-title em,
+.cta-title em {
+  font-style: normal;
+  color: transparent;
+  background: linear-gradient(
+    110deg,
+    #fff 0%,
+    rgba(var(--accent-rgb), 1) 38%,
+    #fff 60%,
+    rgba(var(--accent-rgb), .85) 80%,
+    #fff 100%
+  );
+  background-size: 280% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer-title 4s linear infinite;
+  transition: none;
+}
+@keyframes shimmer-title {
+  0%   { background-position: 0% center; }
+  100% { background-position: 280% center; }
+}
+@keyframes gradient-shift {
+  0%,100% { background-position: 0% center; }
+  50%      { background-position: 100% center; }
+}
+
+/* Shimmer gradient on key big numbers */
+.fr-num {
+  background: linear-gradient(135deg, var(--accent) 0%, rgba(255,220,200,.9) 50%, var(--accent) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 4s ease infinite;
+  transition: none;
+}
+
+/* ═══════════════════════════════════════════════════
+   HAMBURGER BUTTON
+═══════════════════════════════════════════════════ */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px;
+  cursor: pointer;
+  padding: 10px 12px;
+  position: relative; z-index: 10;
+  flex-shrink: 0;
+  transition: background .2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  min-width: 44px; min-height: 44px; /* iOS touch target */
+}
+.nav-hamburger:hover { background: rgba(255,255,255,.1); }
+.nav-hamburger span {
+  display: block;
+  width: 20px; height: 1.5px;
+  background: #fff;
+  border-radius: 2px;
+  transition: transform .35s cubic-bezier(.23,1,.32,1), opacity .25s;
+  transform-origin: center;
+}
+.nav-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* ═══════════════════════════════════════════════════
+   MOBILE NAV OVERLAY
+═══════════════════════════════════════════════════ */
+.nav-mobile-overlay {
+  position: fixed; inset: 0; z-index: 240;
+  background: rgba(4,4,4,.97);
+  backdrop-filter: blur(32px) saturate(1.5);
+  -webkit-backdrop-filter: blur(32px) saturate(1.5);
+  -webkit-transform: translateZ(0); transform: translateZ(0);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 14px;
+  opacity: 0; visibility: hidden;
+  pointer-events: none;
+  transition: opacity .45s cubic-bezier(.16,1,.3,1), visibility .45s;
+}
+.nav-mobile-overlay.open {
+  opacity: 1; visibility: visible;
+  pointer-events: auto;
+}
+.nmo-logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.4rem; font-weight: 900;
+  letter-spacing: -.02em; text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.nmo-logo em { color: var(--accent); font-style: normal; transition: color .8s; }
+.nmo-label {
+  font-size: .58rem; font-weight: 700;
+  letter-spacing: .3em; text-transform: uppercase;
+  color: rgba(255,255,255,.22);
+  margin-bottom: 6px;
+}
+.nmo-flavors {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px; width: 100%; max-width: 280px;
+}
+.nmo-flavor-btn {
+  width: 100%; padding: 16px 28px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  color: rgba(255,255,255,.6);
+  font-size: .95rem; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  cursor: pointer;
+  transition: background .25s, color .25s, border-color .25s, transform .25s;
+  font-family: 'Syne', sans-serif;
+}
+.nmo-flavor-btn:hover {
+  background: rgba(var(--accent-rgb),.15);
+  color: #fff;
+  border-color: rgba(var(--accent-rgb),.35);
+  transform: translateY(-2px);
+}
+.nmo-flavor-btn.active {
+  background: rgba(var(--accent-rgb),.22);
+  color: #fff;
+  border-color: rgba(var(--accent-rgb),.5);
+}
+.nmo-cta-wrap { margin-top: 16px; }
+.nmo-close-row {
+  position: absolute; top: 28px; right: 24px;
+}
+.nmo-close {
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 50%;
+  width: 40px; height: 40px;
+  color: #fff; font-size: 1rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.nmo-close:hover { background: rgba(255,255,255,.14); }
+
+/* ═══════════════════════════════════════════════════
+   SECTION ALIGNMENT + OVERFLOW FIXES
+═══════════════════════════════════════════════════ */
+
+/* Prevent horizontal scroll — surgical targeting only */
+.content-wrap, .fr-grid, .footer-inner, .ps-grid,
+.ing-grid, .nut-grid, .rev-header, .review-list,
+.fr-cell, .ps-stat, .mc-inner, .fsp-content {
+  min-width: 0; /* prevents grid blowout */
+}
+
+/* ps-stats: 3 columns too wide on mobile → stack */
+@media (max-width: 900px) {
+  .ps-stats { grid-template-columns: 1fr 1fr; }
+  .ps-stat:last-child { border-right: none; }
+  .ps-stat-num { font-size: clamp(1.6rem, 6vw, 2.5rem); }
+}
+@media (max-width: 480px) {
+  .ps-stats { grid-template-columns: 1fr; }
+  .ps-stat { border-right: none !important; border-bottom: 1px solid var(--fg12); }
+  .ps-stat:last-child { border-bottom: none; }
+  .ps-stat-num { font-size: clamp(2rem, 8vw, 3rem); }
+}
+
+/* Feature row handled in main @media (max-width: 768px) block above */
+@media (max-width: 480px) {
+  .nav-right { gap: 8px; }
+  .footer-top { grid-template-columns: 1fr; }
+  .cta-btns { flex-direction: column; align-items: center; }
+  /* Prevent footer overflow */
+  .footer-inner { padding: 60px clamp(16px,4vw,32px) 32px; }
+}
+
+/* Overlay backdrop click zone (full screen area behind menu) */
+.nmo-backdrop {
+  position: absolute; inset: 0; z-index: -1;
+  cursor: default;
+}
+
+/* Ambient glow — more vibrant */
+.ambient-glow {
+  opacity: .28 !important;
+}
+@keyframes glow-pulse {
+  0%,100% { opacity:.24; transform:translate(-50%,-50%) scale(1); }
+  50%      { opacity:.36; transform:translate(-50%,-50%) scale(1.12); }
+}
+
+/* CTA banner more vibrant */
+#cta-banner {
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 50%,
+      rgba(var(--accent-rgb),.28) 0%, transparent 65%),
+    #030303 !important;
+}
+
+/* ═══════════════════════════════════════════════════
+   FILM GRAIN / NOISE OVERLAY — cinematic texture
+═══════════════════════════════════════════════════ */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 9990;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  opacity: .032;
+  mix-blend-mode: overlay;
+  animation: grain-shift 8s steps(2, end) infinite;
+}
+@keyframes grain-shift {
+  0%  { background-position: 0   0; }
+  25% { background-position: 40px -20px; }
+  50% { background-position: -30px 10px; }
+  75% { background-position: 20px  30px; }
+  100%{ background-position: 0   0; }
+}
+
+/* ═══════════════════════════════════════════════════
+   CUSTOM CURSOR — premium dot + lagging ring
+   (hover: hover ensures desktop-only)
+═══════════════════════════════════════════════════ */
+@media (hover: hover) and (pointer: fine) {
+  body { cursor: none; }
+  a, button, [data-flavor-panel], .flavor-dot, .mc-wrap { cursor: none; }
+}
+.cur {
+  position: fixed; z-index: 9997;
+  width: 8px; height: 8px;
+  background: #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%,-50%);
+  mix-blend-mode: difference;
+  will-change: left, top;
+  display: none;
+  transition: width .2s var(--ease), height .2s var(--ease), opacity .2s;
+}
+.cur-r {
+  position: fixed; z-index: 9996;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.35);
+  pointer-events: none;
+  transform: translate(-50%,-50%);
+  will-change: left, top;
+  display: none;
+  transition: width .35s var(--ease), height .35s var(--ease),
+              border-color .35s, opacity .35s;
+}
+@media (hover: hover) and (pointer: fine) {
+  .cur, .cur-r { display: block; }
+}
+body.cursor-hover .cur { width: 14px; height: 14px; opacity: .7; }
+body.cursor-hover .cur-r {
+  width: 60px; height: 60px;
+  border-color: rgba(var(--accent-rgb), .55);
+}
+body.cursor-click .cur { width: 5px; height: 5px; }
+body.cursor-click .cur-r { width: 32px; height: 32px; }
+
+/* ═══════════════════════════════════════════════════
+   3D TILT CARDS — CSS transitions for tilt JS
+═══════════════════════════════════════════════════ */
+.mc-wrap, .fs-panel {
+  transform-style: preserve-3d;
+  transition: transform .08s linear;
+}
+.mc-wrap.tilt-leave, .fs-panel.tilt-leave {
+  transition: transform .7s cubic-bezier(.23,1,.32,1) !important;
+}
+/* Disable CSS hover transform so JS tilt has full control */
+.mc-wrap:hover { transform: none; }
+
+/* ═══════════════════════════════════════════════════
+   HERO SCROLL HINT — animated caret
+═══════════════════════════════════════════════════ */
+.scroll-hint {
+  position: absolute; bottom: 80px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 10; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  opacity: 0; animation: hint-fade 2s 2.5s ease forwards;
+}
+.scroll-hint-line {
+  width: 1px; height: 48px;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,.4), transparent);
+  animation: scroll-line 2s ease-in-out infinite;
+}
+.scroll-hint-label {
+  font-size: .52rem; font-weight: 700; letter-spacing: .3em;
+  text-transform: uppercase; color: rgba(255,255,255,.3);
+}
+@keyframes hint-fade { to { opacity: 1; } }
+@keyframes scroll-line {
+  0%,100% { transform: scaleY(1) translateY(0); opacity: .4; }
+  50%      { transform: scaleY(1.3) translateY(4px); opacity: .9; }
+}
+/* Hide scroll hint once user starts scrolling */
+body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
+
+/* ═══════════════════════════════════════════════════
+   EYEBROW TYPEWRITER
+═══════════════════════════════════════════════════ */
+.ss-eyebrow {
+  overflow: hidden; white-space: nowrap;
+}
+.ss-eyebrow.type-in {
+  animation: type-in .8s steps(32, end) both;
+}
+@keyframes type-in {
+  from { max-width: 0; }
+  to   { max-width: 100%; }
+}
+
+/* ═══════════════════════════════════════════════════
+   SECTION ENTRY GLOW LINES
+═══════════════════════════════════════════════════ */
+.mc-inner::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(var(--accent-rgb),.5) 50%,
+    transparent 100%
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .6s var(--ease), background .8s;
+}
+.mc-wrap:hover .mc-inner::before { transform: scaleX(1); }
+
+/* ═══════════════════════════════════════════════════
+   ENHANCED FR-NUM (feature row numbers)
+═══════════════════════════════════════════════════ */
+.fr-cell {
+  position: relative;
+}
+.fr-cell::after {
+  content: '';
+  position: absolute; bottom: 0; left: clamp(24px,4vw,60px); right: clamp(24px,4vw,60px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb),.3), transparent);
+  transform: scaleX(0);
+  transition: transform .8s var(--ease);
+}
+.fr-cell.revealed::after { transform: scaleX(1); }
+</style>
+</head>
+<body>
+
+<!-- Particle atmosphere canvas -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- Custom scrollbar -->
+<div id="csb"><div id="csb-thumb"></div></div>
+
+<!-- Custom cursor (desktop only, hidden on touch) -->
+<div class="cur" id="cur"></div>
+<div class="cur-r" id="cur-r"></div>
+
+<!-- ══════════════════════════════════════════════
+     LOADER
+══════════════════════════════════════════════ -->
+<div id="loader">
+  <div>
+    <div class="l-logo">Dr<em>.</em>Pepper</div>
+    <div class="l-logo-sub">Loading the experience</div>
+  </div>
+  <div class="l-track"><div class="l-fill" id="l-fill"></div></div>
+  <div class="l-pct" id="l-pct">0%</div>
+</div>
+
+<!-- Scroll progress bar -->
+<div class="spl" id="spl"></div>
+
+<!-- ══════════════════════════════════════════════
+     NAVIGATION
+══════════════════════════════════════════════ -->
+<nav id="top-nav">
+  <a class="nav-logo" href="#">Dr<em>.</em>Pepper</a>
+
+  <div class="nav-flavors">
+    <button class="flavor-btn active" data-idx="0">Regular</button>
+    <button class="flavor-btn"        data-idx="1">Cherry</button>
+    <button class="flavor-btn"        data-idx="2">Blackberry</button>
+  </div>
+
+  <div class="nav-right">
+    <button class="btn-spin" onclick="document.getElementById('flavors-showcase').scrollIntoView({behavior:'smooth'})">
+      <span class="bs-ring"></span>
+      <span class="bs-fill"></span>
+      <span class="bs-label">Shop Now</span>
+    </button>
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile nav overlay -->
+<div class="nav-mobile-overlay" id="nav-mobile-overlay">
+  <!-- Transparent backdrop — tap outside menu to close -->
+  <div class="nmo-backdrop" id="nmo-backdrop"></div>
+  <div class="nmo-close-row">
+    <button class="nmo-close" id="nmo-close" touch-action="manipulation">✕</button>
+  </div>
+  <div class="nmo-logo">Dr<em>.</em>Pepper</div>
+  <p class="nmo-label">Choose Your Flavor</p>
+  <div class="nmo-flavors">
+    <button class="nmo-flavor-btn active" data-idx="0">Regular</button>
+    <button class="nmo-flavor-btn"        data-idx="1">Cherry</button>
+    <button class="nmo-flavor-btn"        data-idx="2">Blackberry</button>
+  </div>
+  <div class="nmo-cta-wrap">
+    <button class="btn-fill" onclick="document.getElementById('flavors-showcase').scrollIntoView({behavior:'smooth'});closeMobileNav();">
+      Explore Flavors
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     HERO — sticky inside 4× scroll driver
+══════════════════════════════════════════════ -->
+<div id="scroll-driver">
+  <div id="hero-pin">
+
+    <div class="ambient-glow" id="ambient-glow"></div>
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-vignette"></div>
+    <div class="hero-mobile-fade"></div>
+    <!-- Premium scrolling ticker — replaces static bg word -->
+    <div class="hero-ticker-wrap">
+      <div class="hero-ticker">
+        <div class="hero-ticker-inner">
+          DR&nbsp;PEPPER<span class="ticker-dot">&nbsp;·&nbsp;</span>23&nbsp;FLAVORS<span class="ticker-dot">&nbsp;·&nbsp;</span>SINCE&nbsp;1885<span class="ticker-dot">&nbsp;·&nbsp;</span>WACO&nbsp;TEXAS<span class="ticker-dot">&nbsp;·&nbsp;</span>BOLD&nbsp;CHERRY<span class="ticker-dot">&nbsp;·&nbsp;</span>DARK&nbsp;BLACKBERRY<span class="ticker-dot">&nbsp;·&nbsp;</span>THE&nbsp;ORIGINAL<span class="ticker-dot">&nbsp;·&nbsp;</span>
+        </div>
+        <!-- Duplicate for seamless loop -->
+        <div class="hero-ticker-inner" aria-hidden="true">
+          DR&nbsp;PEPPER<span class="ticker-dot">&nbsp;·&nbsp;</span>23&nbsp;FLAVORS<span class="ticker-dot">&nbsp;·&nbsp;</span>SINCE&nbsp;1885<span class="ticker-dot">&nbsp;·&nbsp;</span>WACO&nbsp;TEXAS<span class="ticker-dot">&nbsp;·&nbsp;</span>BOLD&nbsp;CHERRY<span class="ticker-dot">&nbsp;·&nbsp;</span>DARK&nbsp;BLACKBERRY<span class="ticker-dot">&nbsp;·&nbsp;</span>THE&nbsp;ORIGINAL<span class="ticker-dot">&nbsp;·&nbsp;</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- S1: HERO -->
+    <div class="scroll-section ss-hero" id="ss1">
+      <div class="ss-hero-inner">
+        <em class="ss-eyebrow" id="ss1-eyebrow">Original Formula — Est. 1885</em>
+        <h1 class="ss-title">23 Flavors.<br><em id="ss1-accent">One Legend.</em></h1>
+        <p class="ss-sub">A modern take on a century-old secret. Unmistakably bold, impossibly complex.</p>
+      </div>
+    </div>
+
+    <!-- S2: THE BLEND -->
+    <div class="scroll-section ss-blend" id="ss2">
+      <div class="ss-card">
+        <div class="ss-card-num" id="ss2-num">01</div>
+        <h2 class="ss-card-title">Precision-crafted taste.</h2>
+        <p class="ss-card-body">A perfect balance of sweet, rich, and bold. Every one of 23 signature flavor notes tuned to perfection — a harmony no single ingredient could achieve alone.</p>
+      </div>
+    </div>
+
+    <!-- S3: THE REFRESHMENT -->
+    <div class="scroll-section ss-refresh" id="ss3">
+      <div class="ss-card">
+        <div class="ss-card-num" id="ss3-num">02</div>
+        <h2 class="ss-card-title">Crisp, cold perfection.</h2>
+        <p class="ss-card-body">Every drop engineered for maximum refreshment. The moment it hits your lips, 139 years of mastery speak for themselves. Pure. Unapologetic. Iconic.</p>
+      </div>
+    </div>
+
+    <!-- S4: CTA -->
+    <div class="scroll-section ss-cta" id="ss4">
+      <div class="ss-cta-glass">
+        <h2 class="ss-cta-title">Taste the<br>Difference.</h2>
+        <p class="ss-cta-sub">Choose your flavor below</p>
+        <button class="btn-spin" style="pointer-events:auto;"
+          onclick="document.getElementById('flavors-showcase').scrollIntoView({behavior:'smooth'})">
+          <span class="bs-ring"></span>
+          <span class="bs-fill"></span>
+          <span class="bs-label">Explore All Flavors</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Scroll hint -->
+    <div class="scroll-hint">
+      <span class="scroll-hint-label">Scroll</span>
+      <div class="scroll-hint-line"></div>
+    </div>
+
+    <!-- Flavor dots -->
+    <div class="flavor-dots" id="flavor-dots">
+      <div class="flavor-dot active" data-idx="0"></div>
+      <div class="flavor-dot" data-idx="1"></div>
+      <div class="flavor-dot" data-idx="2"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     FLAVOR SHOWCASE — Juicy / Cools inspired
+══════════════════════════════════════════════ -->
+<section id="flavors-showcase">
+  <div class="fs-grid">
+
+    <!-- Regular -->
+    <div class="fs-panel reveal" data-flavor-panel="0"
+         style="--fc-rgb:113,31,37; --fc-rgb-light:255,180,160;">
+      <div class="fsp-bg"></div>
+      <div class="fsp-watermark">01</div>
+      <div class="fsp-content">
+        <em class="fsp-eyebrow">Since 1885</em>
+        <h2 class="fsp-name">Regular</h2>
+        <div class="fsp-divider"></div>
+        <p class="fsp-desc">The original legend. 23 secret flavors in perfect harmony since 1885. Bold, complex, unmistakable.</p>
+        <button class="btn-fill fsp-btn" style="--accent:#711F25;--accent-rgb:113,31,37;">
+          Explore Regular
+        </button>
+      </div>
+    </div>
+
+    <!-- Cherry -->
+    <div class="fs-panel reveal" data-delay="1" data-flavor-panel="1"
+         style="--fc-rgb:204,0,0; --fc-rgb-light:255,180,180;">
+      <div class="fsp-bg"></div>
+      <div class="fsp-watermark">02</div>
+      <div class="fsp-content">
+        <em class="fsp-eyebrow">Bold & Bright</em>
+        <h2 class="fsp-name">Cherry</h2>
+        <div class="fsp-divider"></div>
+        <p class="fsp-desc">Vibrant cherry meets the iconic 23-flavor formula. A bright, electrifying twist on a century-old classic.</p>
+        <button class="btn-fill fsp-btn" style="--accent:#CC0000;--accent-rgb:204,0,0;">
+          Explore Cherry
+        </button>
+      </div>
+    </div>
+
+    <!-- Blackberry -->
+    <div class="fs-panel reveal" data-delay="2" data-flavor-panel="2"
+         style="--fc-rgb:74,29,130; --fc-rgb-light:200,160,255;">
+      <div class="fsp-bg"></div>
+      <div class="fsp-watermark">03</div>
+      <div class="fsp-content">
+        <em class="fsp-eyebrow">Dark & Complex</em>
+        <h2 class="fsp-name">Blackberry</h2>
+        <div class="fsp-divider"></div>
+        <p class="fsp-desc">Bold blackberry darkness layered over 23 iconic flavors. Rich, mysterious, utterly unforgettable.</p>
+        <button class="btn-fill fsp-btn" style="--accent:#4a1d82;--accent-rgb:74,29,130;">
+          Explore Blackberry
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     FEATURE ROW — Boosty inspired
+══════════════════════════════════════════════ -->
+<div id="feature-row">
+  <div class="fr-grid">
+    <div class="fr-cell reveal">
+      <div class="fr-num" data-count="23" data-suffix="">—</div>
+      <div class="fr-label">Secret Flavors</div>
+      <p class="fr-desc">A proprietary blend never fully disclosed — crafted by pharmacist Charles Alderton in 1885.</p>
+    </div>
+    <div class="fr-cell reveal" data-delay="1">
+      <div class="fr-num" data-count="139" data-suffix="+">—</div>
+      <div class="fr-label">Years of Legacy</div>
+      <p class="fr-desc">Born in Waco, Texas. Still the most unique taste on earth — and no one has replicated it.</p>
+    </div>
+    <div class="fr-cell reveal" data-delay="2">
+      <div class="fr-num" data-count="3" data-suffix="">—</div>
+      <div class="fr-label">Bold Variants</div>
+      <p class="fr-desc">Regular, Cherry, and Blackberry — three distinct experiences, one unmistakable DNA.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PRODUCT STORY
+══════════════════════════════════════════════ -->
+<div style="border-top: 1px solid var(--fg06);">
+  <div class="content-wrap">
+    <div id="product-story">
+      <div class="ps-grid">
+        <div>
+          <em class="ps-eyebrow reveal">Since 1885</em>
+          <h2 class="ps-title reveal">Born in<br>Waco, Texas.</h2>
+          <div class="ps-body reveal" data-delay="1">
+            <p>Pharmacist Charles Alderton created Dr Pepper at Morrison's Old Corner Drug Store, experimenting with fruit syrups until he landed a combination unlike anything the world had tasted.</p>
+            <p>The result was a bold, impossibly complex blend of 23 flavors — a formula so unique it defies category. Not a cola, not a root beer, not a fruit soda. Dr Pepper is simply Dr Pepper.</p>
+          </div>
+          <div class="ps-stats reveal" data-delay="2">
+            <div class="ps-stat">
+              <div class="ps-stat-num">23</div>
+              <div class="ps-stat-label">Flavors</div>
+            </div>
+            <div class="ps-stat">
+              <div class="ps-stat-num">1885</div>
+              <div class="ps-stat-label">Founded</div>
+            </div>
+            <div class="ps-stat">
+              <div class="ps-stat-num">#1</div>
+              <div class="ps-stat-label">Unique</div>
+            </div>
+          </div>
+        </div>
+        <div class="ps-visual reveal" data-delay="1">
+          <div class="ps-visual-glow" id="ps-glow"></div>
+          <div class="ps-visual-content">
+            <span class="ps-visual-icon">🥤</span>
+            <span class="ps-visual-label">The Original Formula · Est. 1885</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     INGREDIENTS — magic ring cards
+══════════════════════════════════════════════ -->
+<div id="ingredients-section">
+  <div class="content-wrap">
+    <div class="ing-header">
+      <div>
+        <em class="section-eyebrow reveal">What's Inside</em>
+        <h2 class="section-title reveal">Crafted<br>with Purpose.</h2>
+      </div>
+      <p class="ing-header-right reveal" data-delay="1">Six core ingredients. Twenty-three flavor notes. One unforgettable taste.</p>
+    </div>
+    <div class="ing-grid">
+      <div class="mc-wrap reveal">
+        <div class="mc-ring"></div>
+        <div class="mc-inner">
+          <span class="mc-num">— 01</span>
+          <div class="mc-bg-num">01</div>
+          <h3 class="mc-name">Carbonated Water</h3>
+          <p class="mc-desc">The crisp, clean foundation that carries all 23 flavor notes with perfect effervescence.</p>
+        </div>
+      </div>
+      <div class="mc-wrap reveal" data-delay="1">
+        <div class="mc-ring"></div>
+        <div class="mc-inner">
+          <span class="mc-num">— 02</span>
+          <div class="mc-bg-num">02</div>
+          <h3 class="mc-name">High Fructose Corn Syrup</h3>
+          <p class="mc-desc">Precision sweetness engineered to balance the bold, complex flavor architecture.</p>
+        </div>
+      </div>
+      <div class="mc-wrap reveal" data-delay="2">
+        <div class="mc-ring"></div>
+        <div class="mc-inner">
+          <span class="mc-num">— 03</span>
+          <div class="mc-bg-num">03</div>
+          <h3 class="mc-name">Caramel Color</h3>
+          <p class="mc-desc">The iconic rich mahogany — a visual signature that signals depth and complexity.</p>
+        </div>
+      </div>
+      <div class="mc-wrap reveal" data-delay="1">
+        <div class="mc-ring"></div>
+        <div class="mc-inner">
+          <span class="mc-num">— 04</span>
+          <div class="mc-bg-num">04</div>
+          <h3 class="mc-name">Phosphoric Acid</h3>
+          <p class="mc-desc">A bright, clean tartness that sharpens every sip and keeps each note distinct.</p>
+        </div>
+      </div>
+      <div class="mc-wrap reveal" data-delay="2">
+        <div class="mc-ring"></div>
+        <div class="mc-inner">
+          <span class="mc-num">— 05</span>
+          <div class="mc-bg-num">05</div>
+          <h3 class="mc-name">Natural & Artificial Flavors</h3>
+          <p class="mc-desc">The legendary 23 — a proprietary blend so unique it has never been fully disclosed.</p>
+        </div>
+      </div>
+      <div class="mc-wrap reveal" data-delay="3">
+        <div class="mc-ring"></div>
+        <div class="mc-inner">
+          <span class="mc-num">— 06</span>
+          <div class="mc-bg-num">06</div>
+          <h3 class="mc-name">Caffeine</h3>
+          <p class="mc-desc">41mg per 12oz. The energizing undercurrent woven through every drop.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     NUTRITION
+══════════════════════════════════════════════ -->
+<div style="border-top:1px solid var(--fg06);">
+  <div class="content-wrap">
+    <div id="nutrition-section">
+      <div class="nut-grid">
+        <div class="nl reveal">
+          <h2>Nutrition<br>Facts</h2>
+          <div class="nl-srv">About 1 serving per container<br><strong>Serving size 12 fl oz (355mL)</strong></div>
+          <div style="font-size:.55rem;margin:3px 0 1px;">Amount per serving</div>
+          <div class="nl-cals">
+            <span class="nl-cals-lbl">Calories</span>
+            <span class="nl-cals-num">150</span>
+          </div>
+          <div class="nl-dv">% Daily Value*</div>
+          <div class="nl-r"><span><strong>Total Fat</strong> 0g</span><span><strong>0%</strong></span></div>
+          <div class="nl-r nl-ind"><span>Saturated Fat 0g</span><span>0%</span></div>
+          <div class="nl-r nl-ind"><span><em>Trans</em> Fat 0g</span><span></span></div>
+          <div class="nl-r"><span><strong>Cholesterol</strong> 0mg</span><span><strong>0%</strong></span></div>
+          <div class="nl-r"><span><strong>Sodium</strong> 55mg</span><span><strong>2%</strong></span></div>
+          <div class="nl-r"><span><strong>Total Carbohydrate</strong> 40g</span><span><strong>15%</strong></span></div>
+          <div class="nl-r nl-ind"><span>Dietary Fiber 0g</span><span>0%</span></div>
+          <div class="nl-r nl-ind"><span>Total Sugars 39g</span><span></span></div>
+          <div class="nl-r nl-ind2"><span>Incl. 39g Added Sugars</span><span>78%</span></div>
+          <div class="nl-r thick"><span><strong>Protein</strong> 0g</span><span></span></div>
+          <div class="nl-r top8"><span>Vitamin D 0mcg</span><span>0%</span></div>
+          <div class="nl-r"><span>Calcium 17mg</span><span>2%</span></div>
+          <div class="nl-r"><span>Iron 0.1mg</span><span>0%</span></div>
+          <div class="nl-r"><span>Potassium 35mg</span><span>0%</span></div>
+          <p class="nl-fn">*Percent Daily Values are based on a 2,000 calorie diet.</p>
+        </div>
+        <div class="nut-text">
+          <em class="section-eyebrow reveal">Nutrition</em>
+          <h2 class="nut-title reveal">Bold Taste.<br>Full Transparency.</h2>
+          <div class="nut-body reveal" data-delay="1">
+            <p>Dr Pepper is committed to giving you the full picture. Every can carries a complete nutrition label so you can enjoy your favorite flavors with total confidence.</p>
+            <p>150 calories per 12 fl oz serving. Zero fat, zero cholesterol. Just the pure, complex flavor of 23 ingredients in perfect harmony — exactly as Charles Alderton intended in 1885.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     REVIEWS
+══════════════════════════════════════════════ -->
+<div id="reviews-section">
+  <div class="content-wrap">
+    <div class="rev-header">
+      <div>
+        <em class="section-eyebrow reveal">Fan Reviews</em>
+        <h2 class="section-title reveal">The People<br>Have Spoken.</h2>
+      </div>
+      <div class="rev-rating reveal">
+        <div class="rev-rating-num">4.9</div>
+        <div class="rev-rating-stars">★★★★★</div>
+        <div class="rev-rating-count">Based on 48,000+ reviews</div>
+      </div>
+    </div>
+    <div class="review-list">
+      <div class="review-item open reveal">
+        <button class="review-toggle">
+          <div class="rev-meta"><span class="rev-name">Marcus T. — Austin, TX</span><span class="rev-stars">★★★★★</span></div>
+          <span class="rev-headline">Nothing on earth comes close.</span>
+          <svg class="rev-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="review-body">"I've been drinking Dr Pepper since I was a kid and the Cherry variant just elevated everything. The balance of sweet cherry and those 23 signature flavors is nothing short of perfection. I keep a 12-pack at the office and people constantly try to steal them."</div>
+      </div>
+      <div class="review-item reveal">
+        <button class="review-toggle">
+          <div class="rev-meta"><span class="rev-name">Priya K. — Nashville, TN</span><span class="rev-stars">★★★★★</span></div>
+          <span class="rev-headline">Blackberry converted me from a non-soda person.</span>
+          <svg class="rev-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="review-body">"I wasn't even a soda person. My friend handed me a Dr Pepper Blackberry at a cookout and I became a full convert on the spot. There's something almost wine-like about the depth of flavor. Absolutely stunning."</div>
+      </div>
+      <div class="review-item reveal">
+        <button class="review-toggle">
+          <div class="rev-meta"><span class="rev-name">Dave R. — Waco, TX</span><span class="rev-stars">★★★★★</span></div>
+          <span class="rev-headline">The OG formula still runs circles around everything.</span>
+          <svg class="rev-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="review-body">"Regular Dr Pepper with a greasy burger? Transcendent. The original formula is 139 years old and it still destroys every new drink trying to compete."</div>
+      </div>
+      <div class="review-item reveal">
+        <button class="review-toggle">
+          <div class="rev-meta"><span class="rev-name">Carmen V. — Phoenix, AZ</span><span class="rev-stars">★★★★★</span></div>
+          <span class="rev-headline">Cherry is criminally underrated.</span>
+          <svg class="rev-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="review-body">"People sleep on Cherry Dr Pepper. The cherry note is subtle, not syrupy — it enhances the original rather than overpowering it. My summer BBQ drink of choice, every year without exception."</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     CTA BANNER
+══════════════════════════════════════════════ -->
+<div id="cta-banner">
+  <em class="cta-eyebrow reveal">Ready to Experience It?</em>
+  <h2 class="cta-title reveal">Taste the<br>Legend.</h2>
+  <p class="cta-sub reveal">Three flavors. One unmistakable DNA.</p>
+  <div class="cta-btns reveal" data-delay="1">
+    <button class="btn-spin" style="width:220px;height:54px;"
+      onclick="window.scrollTo({top:0,behavior:'smooth'})">
+      <span class="bs-ring"></span>
+      <span class="bs-fill"></span>
+      <span class="bs-label">Shop Dr Pepper</span>
+    </button>
+    <button class="btn-fill"
+      onclick="document.getElementById('flavors-showcase').scrollIntoView({behavior:'smooth'})">
+      Explore Flavors
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">Dr<em>.</em>Pepper</div>
+        <p class="footer-tag">Always One of a Kind.<br>Est. 1885, Waco, Texas.</p>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-h">Products</div>
+        <ul>
+          <li><a href="#">Dr Pepper Regular</a></li>
+          <li><a href="#">Dr Pepper Cherry</a></li>
+          <li><a href="#">Dr Pepper Blackberry</a></li>
+          <li><a href="#">Dr Pepper Zero Sugar</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-h">Company</div>
+        <ul>
+          <li><a href="#">Our Story</a></li>
+          <li><a href="#">Sustainability</a></li>
+          <li><a href="#">Newsroom</a></li>
+          <li><a href="#">Careers</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-h">Legal</div>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Use</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+          <li><a href="#">Accessibility</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-legal">© 2026 Dr Pepper/Seven Up, Inc. All rights reserved.</span>
+      <span class="footer-legal">Drink Responsibly.</span>
+    </div>
+    <div class="footer-disclaimer">
+      <p>⚠️ <strong>Educational &amp; Portfolio Project Only.</strong> This website was created solely for educational purposes and as a personal portfolio demonstration. It is not affiliated with, endorsed by, sponsored by, or in any way officially connected to Dr Pepper Keurig Dr Pepper Inc. or any of its subsidiaries. All Dr Pepper® trademarks, logos, brand names, product names, and imagery are the registered trademarks and intellectual property of Keurig Dr Pepper Inc. Product images were sourced from publicly available Google Images for non-commercial, educational, and illustrative purposes under fair use. No commercial use, monetary gain, or brand representation is intended or implied. If you are a rights holder and have concerns, please contact the site author directly.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+'use strict';
+
+/* ─── CONFIG ─────────────────────────────────────────────── */
+const VARIANTS = [
+  { id:'regular',    eyebrow:'Original Formula — Est. 1885', accentText:'One Legend.',   accent:'#711F25', accentRgb:'113,31,37',  bgWord:'REGULAR',    folder:'regular_dr_pepper_frames',     frameCount:220, startImg:'dr_pepper_start.png'  },
+  { id:'cherry',     eyebrow:'Cherry Edition — Bold & Bright', accentText:'Bold Cherry.',  accent:'#CC0000', accentRgb:'204,0,0',    bgWord:'CHERRY',     folder:'dr_pepper_cherry_frames',       frameCount:203, startImg:'cherry_start.png'      },
+  { id:'blackberry', eyebrow:'Blackberry — Dark & Complex',  accentText:'Dark Mystery.', accent:'#4a1d82', accentRgb:'74,29,130',  bgWord:'BLACKBERRY', folder:'blackberry_dr_pepper_frames',   frameCount:202, startImg:'black_berry_start.png' },
+];
+
+const SECTION_TIMINGS = [
+  { fadeIn:0,    peakStart:.04,  peakEnd:.14, fadeOut:.22, dir:'up'    },
+  { fadeIn:.20,  peakStart:.27,  peakEnd:.42, fadeOut:.50, dir:'left'  },
+  { fadeIn:.48,  peakStart:.55,  peakEnd:.68, fadeOut:.76, dir:'right' },
+  { fadeIn:.84,  peakStart:.90,  peakEnd:1,   fadeOut:1,   dir:'up'    },
+];
+
+function framePath(folder, i) {
+  return `${folder}/frame_${String(i).padStart(3,'0')}_delay-0.04s.webp`;
+}
+
+/* ─── DOM ────────────────────────────────────────────────── */
+const loader    = document.getElementById('loader');
+const lFill     = document.getElementById('l-fill');
+const lPct      = document.getElementById('l-pct');
+const canvas    = document.getElementById('hero-canvas');
+const ctx       = canvas.getContext('2d');
+const driver    = document.getElementById('scroll-driver');
+const pin       = document.getElementById('hero-pin');
+const glow      = document.getElementById('ambient-glow');
+const psGlow    = document.getElementById('ps-glow');
+const splEl     = document.getElementById('spl');
+const topNav    = document.getElementById('top-nav');
+const flavorBtns= document.querySelectorAll('.flavor-btn');
+const flavorDots= document.querySelectorAll('.flavor-dot');
+const scrollSections = [
+  document.getElementById('ss1'),
+  document.getElementById('ss2'),
+  document.getElementById('ss3'),
+  document.getElementById('ss4'),
+];
+const ss1Eyebrow = document.getElementById('ss1-eyebrow');
+const ss1Accent  = document.getElementById('ss1-accent');
+
+/* ─── STATE ──────────────────────────────────────────────── */
+let cv         = 0; // currentVariant
+let frames     = [[], [], []];
+let activeF    = 0;
+let rawP       = 0;
+let lerpP      = 0;
+let rafId      = null;
+let switching  = false;
+let maxScroll  = 1;
+
+/* ─── CANVAS ─────────────────────────────────────────────── */
+function resizeCanvas() {
+  canvas.width  = pin.offsetWidth;
+  canvas.height = pin.offsetHeight;
+  drawF(activeF);
+}
+
+function drawF(idx) {
+  const f = frames[cv][idx];
+  if (!f || !f.complete || !f.naturalWidth) return;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const { naturalWidth:iw, naturalHeight:ih } = f;
+  const cw = canvas.width, ch = canvas.height;
+  const sc = Math.max(cw/iw, ch/ih);
+  ctx.drawImage(f, (cw-iw*sc)/2, (ch-ih*sc)/2, iw*sc, ih*sc);
+}
+
+/* ─── LOAD FRAMES ────────────────────────────────────────── */
+function preload(vIdx, onProg, onDone) {
+  const v = VARIANTS[vIdx], total = v.frameCount;
+  let done = 0;
+  frames[vIdx] = new Array(total);
+  for (let i = 0; i < total; i++) {
+    const img = new Image();
+    img.onload = img.onerror = () => {
+      done++;
+      if (onProg) onProg(done, total);
+      if (done === total && onDone) onDone();
+    };
+    img.src = framePath(v.folder, i);
+    frames[vIdx][i] = img;
+  }
+}
+
+/* ─── EASING ─────────────────────────────────────────────── */
+const clamp = (v,lo,hi) => Math.max(lo,Math.min(hi,v));
+const lerp  = (a,b,t)   => a + (b-a)*t;
+function easeOut3(t) { return 1 - (1-t)**3; }
+
+function secOpacity(p, s) {
+  if (p <= s.fadeIn || p >= s.fadeOut) return 0;
+  if (p <= s.peakStart) return easeOut3((p-s.fadeIn)/(s.peakStart-s.fadeIn));
+  if (p >= s.peakEnd)   return 1 - easeOut3((p-s.peakEnd)/(s.fadeOut-s.peakEnd));
+  return 1;
+}
+function secTransform(op, dir) {
+  const t = 1 - op, d = 38;
+  if (dir==='up')    return `translateY(${t*d}px)`;
+  if (dir==='left')  return `translateX(${-t*d}px)`;
+  if (dir==='right') return `translateX(${t*d}px)`;
+  return '';
+}
+
+/* ─── RAF LOOP ───────────────────────────────────────────── */
+function startRAF() {
+  if (rafId) return;
+  function tick() {
+    lerpP = lerp(lerpP, rawP, .055);
+    const v = VARIANTS[cv];
+    const fi = clamp(Math.floor(rawP * v.frameCount), 0, v.frameCount-1);
+    if (fi !== activeF) { activeF = fi; drawF(fi); }
+
+    scrollSections.forEach((el,i) => {
+      const s  = SECTION_TIMINGS[i];
+      const op = secOpacity(lerpP, s);
+      el.style.opacity   = op;
+      el.style.transform = secTransform(op, s.dir);
+    });
+
+    splEl.style.transform = `scaleX(${rawP})`;
+    rafId = requestAnimationFrame(tick);
+  }
+  rafId = requestAnimationFrame(tick);
+}
+
+/* ─── CAN-OPEN SOUND (real .mp3 file, fires once) ──────────── */
+let _canSoundPlayed = false;
+const _canAudio = new Audio('freesound_community-opening-soda-can-85366.mp3');
+_canAudio.preload = 'auto';
+_canAudio.volume  = 0.85;
+
+function playCanOpen() {
+  if (_canSoundPlayed) return;
+  _canSoundPlayed = true;
+  _canAudio.currentTime = 0;
+  _canAudio.play().catch(() => {});   // silent fail if blocked
+}
+
+// wheel + touchstart are true user-gesture events — guaranteed to
+// satisfy browser autoplay policy on all browsers incl. iOS Safari
+['wheel','touchstart'].forEach(evt =>
+  window.addEventListener(evt, playCanOpen, { once: true, passive: true })
+);
+
+/* ─── LENIS SMOOTH SCROLL ────────────────────────────────── */
+let lenis;
+function initLenis() {
+  lenis = new Lenis({ lerp: 0.085, smoothWheel: true });
+
+  lenis.on('scroll', ({ scroll }) => {
+    maxScroll = driver.offsetHeight - window.innerHeight;
+    rawP = clamp(scroll / maxScroll, 0, 1);
+    if (scroll > 40) topNav.classList.add('frosted');
+    else             topNav.classList.remove('frosted');
+  });
+
+  function lenisRAF(time) {
+    lenis.raf(time);
+    requestAnimationFrame(lenisRAF);
+  }
+  requestAnimationFrame(lenisRAF);
+
+  // Connect GSAP ScrollTrigger to Lenis
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+  gsap.ticker.lagSmoothing(0);
+}
+
+/* ─── GSAP SCROLL REVEALS ────────────────────────────────── */
+function initGSAP() {
+  gsap.registerPlugin(ScrollTrigger);
+
+  // All .reveal elements
+  gsap.utils.toArray('.reveal').forEach(el => {
+    const delay = el.dataset.delay ? +el.dataset.delay * 0.12 : 0;
+    gsap.fromTo(el,
+      { opacity: 0, y: 44 },
+      {
+        opacity: 1, y: 0,
+        duration: 1.1,
+        ease: 'power3.out',
+        delay,
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 88%',
+          toggleActions: 'play none none none',
+        }
+      }
+    );
+  });
+
+  // Animated counters
+  document.querySelectorAll('[data-count]').forEach(el => {
+    const target = +el.dataset.count;
+    const suffix = el.dataset.suffix || '';
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 85%',
+      onEnter: () => {
+        gsap.fromTo({ val: 0 }, { val: target }, {
+          duration: 2.2, ease: 'power3.out',
+          onUpdate: function() {
+            el.textContent = Math.round(this.targets()[0].val) + suffix;
+          }
+        });
+      }
+    });
+  });
+
+  // Ingredient cards stagger
+  gsap.utils.toArray('.mc-wrap').forEach((el, i) => {
+    gsap.fromTo(el,
+      { opacity: 0, y: 50, scale: .96 },
+      {
+        opacity: 1, y: 0, scale: 1,
+        duration: .9, ease: 'power3.out',
+        delay: (i % 3) * 0.1,
+        scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' }
+      }
+    );
+  });
+
+  // Flavor panel parallax
+  gsap.utils.toArray('.fs-panel').forEach((el, i) => {
+    gsap.fromTo(el,
+      { opacity: 0, y: 80 },
+      {
+        opacity: 1, y: 0,
+        duration: 1.2, ease: 'power3.out',
+        delay: i * 0.15,
+        scrollTrigger: { trigger: el, start: 'top 90%', toggleActions: 'play none none none' }
+      }
+    );
+  });
+}
+
+/* ─── APPLY THEME ────────────────────────────────────────── */
+function applyTheme(vIdx) {
+  const v = VARIANTS[vIdx];
+  document.documentElement.style.setProperty('--accent', v.accent);
+  document.documentElement.style.setProperty('--accent-rgb', v.accentRgb);
+  glow.style.background = v.accent;
+  if (psGlow) psGlow.style.background = v.accent;
+  ss1Eyebrow.textContent = v.eyebrow;
+  ss1Accent.textContent  = v.accentText;
+  flavorBtns.forEach((b,i) => b.classList.toggle('active', i===vIdx));
+  flavorDots.forEach((d,i) => d.classList.toggle('active', i===vIdx));
+  document.querySelectorAll('.nmo-flavor-btn').forEach((b,i) => b.classList.toggle('active', i===vIdx));
+}
+
+/* ─── SWITCH VARIANT ─────────────────────────────────────── */
+function switchVariant(newIdx) {
+  if (newIdx === cv || switching) return;
+  switching = true;
+  pin.style.transition = 'opacity .35s';
+  pin.style.opacity = '0';
+
+  const doSwitch = () => {
+    cv = newIdx;
+    activeF = 0;
+    lerpP = 0; rawP = 0;
+    applyTheme(newIdx);
+    drawF(0);
+    if (lenis) lenis.scrollTo(0, { immediate: true });
+    pin.style.opacity = '1';
+    setTimeout(() => { pin.style.transition = ''; switching = false; }, 350);
+  };
+
+  const f = frames[newIdx];
+  const ready = f && f[0] && f[0].complete && f[0].naturalWidth > 0;
+  if (ready) { setTimeout(doSwitch, 280); return; }
+  if (!f || !f.length) preload(newIdx);
+  const poll = setInterval(() => {
+    const ff = frames[newIdx];
+    if (ff && ff[0] && ff[0].complete && ff[0].naturalWidth > 0) {
+      clearInterval(poll); doSwitch();
+    }
+  }, 80);
+}
+
+/* ─── MAGNETIC BUTTON EFFECT ─────────────────────────────── */
+function initMagnetic() {
+  document.querySelectorAll('.btn-spin, .btn-fill').forEach(btn => {
+    btn.addEventListener('mousemove', e => {
+      const r = btn.getBoundingClientRect();
+      const x = (e.clientX - r.left - r.width/2) * .28;
+      const y = (e.clientY - r.top  - r.height/2) * .28;
+      btn.style.transform = `translate(${x}px,${y}px) scale(1.04)`;
+      btn.style.transition = 'transform .1s';
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transition = 'transform .6s cubic-bezier(.23,1,.32,1)';
+      btn.style.transform = '';
+    });
+  });
+}
+
+/* ─── PARTICLE BURST ─────────────────────────────────────── */
+function burst(x, y) {
+  const col = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+  for (let i = 0; i < 16; i++) {
+    const p = document.createElement('span');
+    const sz = 3 + Math.random()*6;
+    p.style.cssText = `position:fixed;left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;border-radius:50%;background:${col};pointer-events:none;z-index:9998;`;
+    document.body.appendChild(p);
+    const angle = (i/16)*Math.PI*2;
+    const dist  = 50 + Math.random()*80;
+    p.animate([
+      { transform:'translate(-50%,-50%) scale(1)', opacity:1 },
+      { transform:`translate(calc(-50% + ${Math.cos(angle)*dist}px), calc(-50% + ${Math.sin(angle)*dist}px)) scale(0)`, opacity:0 }
+    ],{ duration:400+Math.random()*300, easing:'cubic-bezier(0,.9,.57,1)', fill:'forwards' })
+    .onfinish = () => p.remove();
+  }
+}
+
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.btn-spin, .btn-fill');
+  if (btn) burst(e.clientX, e.clientY);
+});
+
+/* ─── FLAVOR SHOWCASE CLICKS ─────────────────────────────── */
+document.querySelectorAll('[data-flavor-panel]').forEach(panel => {
+  panel.addEventListener('click', () => switchVariant(+panel.dataset.flavorPanel));
+});
+document.querySelectorAll('[data-flavor-btn]').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    switchVariant(+btn.dataset.flavorBtn);
+  });
+});
+
+/* ─── MOBILE NAV ─────────────────────────────────────────── */
+const hamburger      = document.getElementById('nav-hamburger');
+const mobileOverlay  = document.getElementById('nav-mobile-overlay');
+const nmoCloseBtn    = document.getElementById('nmo-close');
+const nmoBackdrop    = document.getElementById('nmo-backdrop');
+
+function openMobileNav() {
+  if (!hamburger || !mobileOverlay) return;
+  hamburger.classList.add('open');
+  mobileOverlay.classList.add('open');
+}
+function closeMobileNav() {
+  if (!hamburger || !mobileOverlay) return;
+  hamburger.classList.remove('open');
+  mobileOverlay.classList.remove('open');
+}
+window.openMobileNav  = openMobileNav;
+window.closeMobileNav = closeMobileNav;
+
+// Bulletproof: handle both click and touchend to prevent iOS 300ms delay
+function addTapListener(el, fn) {
+  if (!el) return;
+  let touched = false;
+  el.addEventListener('touchend', e => {
+    e.preventDefault();
+    touched = true;
+    fn();
+    setTimeout(() => { touched = false; }, 400);
+  }, { passive: false });
+  el.addEventListener('click', () => { if (!touched) fn(); });
+}
+
+addTapListener(hamburger, () => {
+  mobileOverlay.classList.contains('open') ? closeMobileNav() : openMobileNav();
+});
+addTapListener(nmoCloseBtn, closeMobileNav);
+addTapListener(nmoBackdrop, closeMobileNav);
+
+document.querySelectorAll('.nmo-flavor-btn').forEach(btn => {
+  addTapListener(btn, () => {
+    switchVariant(+btn.dataset.idx);
+    closeMobileNav();
+  });
+});
+
+/* ─── UI EVENTS ──────────────────────────────────────────── */
+flavorBtns.forEach(b => b.addEventListener('click', () => switchVariant(+b.dataset.idx)));
+flavorDots.forEach(d => d.addEventListener('click', () => switchVariant(+d.dataset.idx)));
+
+document.querySelectorAll('.review-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const item = btn.closest('.review-item');
+    const was  = item.classList.contains('open');
+    document.querySelectorAll('.review-item').forEach(i => i.classList.remove('open'));
+    if (!was) item.classList.add('open');
+  });
+});
+
+window.addEventListener('resize', () => {
+  driver.style.height = `${window.innerHeight * 4}px`;
+  maxScroll = driver.offsetHeight - window.innerHeight;
+  resizeCanvas();
+  ScrollTrigger && ScrollTrigger.refresh();
+});
+
+/* ─── INIT ───────────────────────────────────────────────── */
+function init() {
+  driver.style.height = `${window.innerHeight * 4}px`;
+  maxScroll = driver.offsetHeight - window.innerHeight;
+  resizeCanvas();
+
+  // Show start image while loading
+  const si = new Image();
+  si.onload = () => {
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    const { naturalWidth:iw, naturalHeight:ih } = si;
+    const cw = canvas.width, ch = canvas.height;
+    const sc = Math.max(cw/iw, ch/ih);
+    ctx.drawImage(si, (cw-iw*sc)/2, (ch-ih*sc)/2, iw*sc, ih*sc);
+  };
+  si.src = VARIANTS[0].startImg;
+
+  // Make S1 visible immediately
+  scrollSections[0].style.opacity = '1';
+  scrollSections[0].style.transform = 'translateY(0)';
+
+  // Preload variant 0
+  preload(0,
+    (done, total) => {
+      const pct = Math.round(done/total*100);
+      lFill.style.width = pct+'%';
+      lPct.textContent  = pct+'%';
+    },
+    () => {
+      loader.classList.add('out');
+      applyTheme(0);
+      drawF(0);
+      initLenis();
+      startRAF();
+      initGSAP();
+      initMagnetic();
+      setTimeout(() => preload(1), 600);
+      setTimeout(() => preload(2), 2200);
+    }
+  );
+}
+
+init();
+
+/* ─── CUSTOM SCROLLBAR ───────────────────────────────── */
+const csbThumb = document.getElementById('csb-thumb');
+const csbTrack = document.getElementById('csb');
+
+function updateScrollbar() {
+  if (!csbThumb || !csbTrack) return;
+  const scrolled  = window.scrollY;
+  const maxY      = document.documentElement.scrollHeight - window.innerHeight;
+  const progress  = Math.max(0, Math.min(1, scrolled / maxY));
+  const trackH    = csbTrack.offsetHeight;
+  const thumbH    = csbThumb.offsetHeight;
+  csbThumb.style.top = (progress * (trackH - thumbH)) + 'px';
+}
+window.addEventListener('scroll', updateScrollbar, { passive: true });
+updateScrollbar();
+
+/* ─── CUSTOM CURSOR ──────────────────────────────────── */
+(function initCursor() {
+  const dot  = document.getElementById('cur');
+  const ring = document.getElementById('cur-r');
+  if (!dot || !ring) return;
+
+  // Only active on true pointer devices
+  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+  let mx = -200, my = -200, rx = -200, ry = -200;
+  let raf;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.left = mx + 'px';
+    dot.style.top  = my + 'px';
+  });
+
+  function loopRing() {
+    rx += (mx - rx) * 0.13;
+    ry += (my - ry) * 0.13;
+    ring.style.left = rx + 'px';
+    ring.style.top  = ry + 'px';
+    raf = requestAnimationFrame(loopRing);
+  }
+  loopRing();
+
+  // Hover state on interactive elements
+  const hoverEls = 'a, button, .flavor-dot, [data-flavor-panel], .mc-wrap, .fs-panel, .review-toggle';
+  document.querySelectorAll(hoverEls).forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+  });
+
+  // Click pulse
+  document.addEventListener('mousedown', () => document.body.classList.add('cursor-click'));
+  document.addEventListener('mouseup',   () => document.body.classList.remove('cursor-click'));
+})();
+
+/* ─── 3D CARD TILT ───────────────────────────────────── */
+(function initTilt() {
+  const MAX_TILT = 8; // degrees
+
+  function applyTilt(el, e) {
+    const r   = el.getBoundingClientRect();
+    const x   = (e.clientX - r.left - r.width  / 2) / (r.width  / 2);
+    const y   = (e.clientY - r.top  - r.height / 2) / (r.height / 2);
+    const ry  =  x * MAX_TILT;
+    const rx  = -y * MAX_TILT;
+    el.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-4px)`;
+  }
+
+  document.querySelectorAll('.mc-wrap, .fs-panel').forEach(el => {
+    el.addEventListener('mouseenter', () => el.classList.remove('tilt-leave'));
+    el.addEventListener('mousemove',  e  => applyTilt(el, e));
+    el.addEventListener('mouseleave', () => {
+      el.classList.add('tilt-leave');
+      el.style.transform = '';
+    });
+  });
+})();
+
+/* ─── EYEBROW TYPEWRITER ON FLAVOR SWITCH ────────────── */
+const _origApplyTheme = applyTheme;
+applyTheme = function(vIdx) {
+  _origApplyTheme(vIdx);
+  const ew = document.getElementById('ss1-eyebrow');
+  if (ew) {
+    ew.classList.remove('type-in');
+    void ew.offsetWidth; // force reflow
+    ew.classList.add('type-in');
+  }
+};
+
+/* ─── SCROLL HINT HIDE + FR-CELL REVEAL ─────────────── */
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 60) document.body.classList.add('scrolled');
+}, { passive: true });
+
+// Trigger fr-cell accent line on scroll into view
+document.querySelectorAll('.fr-cell').forEach(cell => {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { cell.classList.add('revealed'); obs.disconnect(); }});
+  }, { threshold: .4 });
+  obs.observe(cell);
+});
+
+/* ─── PARTICLE ATMOSPHERE — Premium constellation ────── */
+(function initParticles() {
+  const pc = document.getElementById('particle-canvas');
+  if (!pc) return;
+  const pctx = pc.getContext('2d');
+  let W, H, nodes = [];
+
+  const NODE_COUNT = 52;
+  const MAX_DIST   = 160;
+  const MOUSE_DIST = 200;
+  let mouseX = -9999, mouseY = -9999;
+
+  function resize() {
+    W = pc.width  = window.innerWidth;
+    H = pc.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', () => { resize(); spawnNodes(); });
+  window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+
+  function makeNode() {
+    const speed = .12 + Math.random() * .28;
+    const angle = Math.random() * Math.PI * 2;
+    return {
+      x:  Math.random() * W,
+      y:  Math.random() * H,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      r:  1.2 + Math.random() * 2,
+      pulse: Math.random() * Math.PI * 2,
+    };
+  }
+
+  function spawnNodes() {
+    nodes = [];
+    for (let i = 0; i < NODE_COUNT; i++) nodes.push(makeNode());
+  }
+  spawnNodes();
+
+  function getAccentRgb() {
+    return getComputedStyle(document.documentElement)
+      .getPropertyValue('--accent-rgb').trim() || '113,31,37';
+  }
+
+  function draw() {
+    pctx.clearRect(0, 0, W, H);
+    const rgb = getAccentRgb();
+
+    // Update positions
+    nodes.forEach(n => {
+      n.x  += n.vx;
+      n.y  += n.vy;
+      n.pulse += .018;
+      // Soft-bounce edges
+      if (n.x < 0) { n.x = 0; n.vx *= -1; }
+      if (n.x > W) { n.x = W; n.vx *= -1; }
+      if (n.y < 0) { n.y = 0; n.vy *= -1; }
+      if (n.y > H) { n.y = H; n.vy *= -1; }
+
+      // Subtle mouse repulsion
+      const mdx = n.x - mouseX, mdy = n.y - mouseY;
+      const md  = Math.sqrt(mdx*mdx + mdy*mdy);
+      if (md < MOUSE_DIST) {
+        const force = (1 - md/MOUSE_DIST) * .4;
+        n.vx += (mdx/md) * force;
+        n.vy += (mdy/md) * force;
+        // Clamp speed
+        const spd = Math.sqrt(n.vx*n.vx + n.vy*n.vy);
+        if (spd > .7) { n.vx = (n.vx/spd)*.7; n.vy = (n.vy/spd)*.7; }
+      }
+    });
+
+    // Draw connection lines
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i], b = nodes[j];
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < MAX_DIST) {
+          const a2 = (1 - dist/MAX_DIST);
+          pctx.globalAlpha = a2 * a2 * .18;
+          pctx.strokeStyle = `rgba(${rgb},1)`;
+          pctx.lineWidth   = .6;
+          pctx.beginPath();
+          pctx.moveTo(a.x, a.y);
+          pctx.lineTo(b.x, b.y);
+          pctx.stroke();
+        }
+      }
+    }
+
+    // Draw nodes — softly pulsing glow dots
+    nodes.forEach(n => {
+      const pulse = .55 + Math.sin(n.pulse) * .3;
+      const gR    = n.r * 4 * pulse;
+      pctx.globalAlpha = .22 * pulse;
+      const grad = pctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, gR);
+      grad.addColorStop(0,   `rgba(${rgb},1)`);
+      grad.addColorStop(.45, `rgba(${rgb},.35)`);
+      grad.addColorStop(1,   `rgba(${rgb},0)`);
+      pctx.fillStyle = grad;
+      pctx.beginPath();
+      pctx.arc(n.x, n.y, gR, 0, Math.PI * 2);
+      pctx.fill();
+
+      // Bright core
+      pctx.globalAlpha = .6 * pulse;
+      pctx.fillStyle = `rgba(255,255,255,1)`;
+      pctx.beginPath();
+      pctx.arc(n.x, n.y, n.r * .45, 0, Math.PI * 2);
+      pctx.fill();
+    });
+
+    pctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
