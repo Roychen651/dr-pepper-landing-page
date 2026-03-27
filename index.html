@@ -890,10 +890,13 @@ footer { background: #000; border-top: 1px solid rgba(255,255,255,.05); }
   .btn-spin { width: 180px; height: 46px; }
 
   /* ── FLAVOR PANELS ── */
-  .fs-panel { padding: 40px 24px; min-height: 56vw; border-right: none; border-bottom: 1px solid var(--fg06); text-align: center; }
-  .fsp-name { font-size: clamp(2rem, 7vw, 3rem); }
+  .fs-panel { padding: 40px 24px 48px; min-height: 60vw; border-right: none; border-bottom: 1px solid var(--fg06); text-align: center; }
+  .fsp-content { display: flex; flex-direction: column; align-items: center; }
+  .fsp-eyebrow { text-align: center; }
+  .fsp-name { font-size: clamp(2.2rem, 9vw, 3.2rem); text-align: center; }
   .fsp-divider { margin-left: auto; margin-right: auto; }
-  .fsp-desc { max-width: 100%; margin-left: auto; margin-right: auto; }
+  .fsp-desc { max-width: 280px; margin-left: auto; margin-right: auto; text-align: center; }
+  .fsp-btn { align-self: center; }
 
   /* ── PRODUCT STORY ── */
   .ps-grid { grid-template-columns: 1fr; gap: 48px; }
@@ -992,18 +995,44 @@ footer { background: #000; border-top: 1px solid rgba(255,255,255,.05); }
 /* PILLAR 4: Swipe hint inside hero */
 .swipe-nudge {
   display: none; /* enabled via media query */
-  position: absolute; bottom: 80px; left: 50%;
+  position: absolute; bottom: 88px; left: 50%;
   transform: translateX(-50%);
-  z-index: 12; align-items: center; gap: 10px;
-  opacity: 0; animation: hint-fade 1s 4.5s ease forwards;
+  z-index: 12;
+  flex-direction: column; align-items: center; gap: 6px;
+  opacity: 0; animation: hint-fade 1s 2s ease forwards;
   pointer-events: none;
+  background: rgba(0,0,0,.45); backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 40px; padding: 8px 18px 10px;
 }
-.swipe-nudge-icon { font-size: .55rem; font-weight: 700; letter-spacing: .22em;
-  text-transform: uppercase; color: rgba(255,255,255,.35); }
-.swipe-nudge-line {
-  width: 28px; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
+.sn-top-label {
+  font-size: .5rem; font-weight: 700; letter-spacing: .2em;
+  text-transform: uppercase; color: rgba(255,255,255,.35);
 }
+.sn-flavors {
+  display: flex; align-items: center; gap: 6px;
+}
+.sn-name {
+  font-size: .62rem; font-weight: 500; letter-spacing: .08em;
+  text-transform: uppercase; color: rgba(255,255,255,.38);
+  transition: color .3s, font-weight .3s;
+}
+.sn-name.sn-current {
+  color: #fff; font-weight: 700;
+  text-shadow: 0 0 12px rgba(var(--accent-rgb), .6);
+}
+.sn-dot { color: rgba(255,255,255,.2); font-size: .5rem; order: 99; }
+/* Arrows always outermost */
+.sn-arrow {
+  font-size: .7rem; color: rgba(255,255,255,.5);
+}
+.sn-arrow-l { order: 0; animation: nudge-l .9s 3s ease-in-out 3 alternate; }
+.sn-arrow-r { order: 100; animation: nudge-r .9s 3s ease-in-out 3 alternate; }
+@keyframes nudge-l { to { transform: translateX(-4px); opacity: 1; } }
+@keyframes nudge-r { to { transform: translateX(4px);  opacity: 1; } }
+/* Dot separator between flavor names */
+.sn-flavors .sn-dot:first-of-type  { order: 15; }
+.sn-flavors .sn-dot:last-of-type   { order: 25; }
 body.swiped .swipe-nudge { opacity: 0 !important; transition: opacity .4s; }
 
 /* ═══════════════════════════════════════════════════
@@ -1399,6 +1428,33 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
 #sound-nudge:not(.hidden) { animation: hint-fade 1s 3s ease forwards, nudge-pulse 2.4s 4s ease infinite; }
 
 /* ═══════════════════════════════════════════════════
+   KEYWORD HIGHLIGHTS — make copy impossible to skip
+═══════════════════════════════════════════════════ */
+/* Accent-colored keyword — use for brand numbers & signature phrases */
+.kw {
+  color: var(--accent);
+  font-style: normal;
+  font-weight: 700;
+  transition: color .5s;
+}
+/* Pop-word: bigger, brighter, pulls the eye mid-sentence */
+.kw-xl {
+  font-size: 1.18em;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -.01em;
+  display: inline-block;
+  line-height: 1;
+}
+/* Glow word: white + accent halo for hero sections */
+.kw-glow {
+  color: #fff;
+  text-shadow: 0 0 24px rgba(var(--accent-rgb), .55);
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* ═══════════════════════════════════════════════════
    EYEBROW TYPEWRITER
 ═══════════════════════════════════════════════════ */
 .ss-eyebrow {
@@ -1581,8 +1637,8 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
     <div class="scroll-section ss-blend" id="ss2">
       <div class="ss-card">
         <div class="ss-card-num" id="ss2-num">01</div>
-        <h2 class="ss-card-title">Precision-crafted taste.</h2>
-        <p class="ss-card-body">A perfect balance of sweet, rich, and bold. Every one of 23 signature flavor notes tuned to perfection — a harmony no single ingredient could achieve alone.</p>
+        <h2 class="ss-card-title">Precision-crafted<br><em class="kw-glow">taste.</em></h2>
+        <p class="ss-card-body">A perfect balance of sweet, rich, and bold. Every one of <span class="kw-xl">23</span> signature <span class="kw">flavor notes</span> tuned to perfection — a harmony no single ingredient could achieve alone.</p>
       </div>
     </div>
 
@@ -1590,15 +1646,15 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
     <div class="scroll-section ss-refresh" id="ss3">
       <div class="ss-card">
         <div class="ss-card-num" id="ss3-num">02</div>
-        <h2 class="ss-card-title">Crisp, cold perfection.</h2>
-        <p class="ss-card-body">Every drop engineered for maximum refreshment. The moment it hits your lips, 139 years of mastery speak for themselves. Pure. Unapologetic. Iconic.</p>
+        <h2 class="ss-card-title">Crisp, cold<br><em class="kw-glow">perfection.</em></h2>
+        <p class="ss-card-body">Every drop engineered for maximum refreshment. The moment it hits your lips, <span class="kw-xl">139 years</span> of mastery speak for themselves. <span class="kw">Pure. Unapologetic. Iconic.</span></p>
       </div>
     </div>
 
     <!-- S4: CTA -->
     <div class="scroll-section ss-cta" id="ss4">
       <div class="ss-cta-glass">
-        <h2 class="ss-cta-title">Taste the<br>Difference.</h2>
+        <h2 class="ss-cta-title">Taste the<br><em>Difference.</em></h2>
         <p class="ss-cta-sub">Choose your flavor below</p>
         <button class="btn-spin" style="pointer-events:auto;"
           onclick="document.getElementById('flavors-showcase').scrollIntoView({behavior:'smooth'})">
@@ -1615,11 +1671,18 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
       <div class="scroll-hint-line"></div>
     </div>
 
-    <!-- Swipe hint (mobile only) -->
-    <div class="swipe-nudge" aria-hidden="true">
-      <div class="swipe-nudge-line"></div>
-      <span class="swipe-nudge-icon">Swipe to switch</span>
-      <div class="swipe-nudge-line"></div>
+    <!-- Swipe hint (mobile only) — shows flavor names + arrows -->
+    <div class="swipe-nudge" aria-hidden="true" id="swipe-nudge">
+      <div class="sn-top-label">Swipe to switch flavor</div>
+      <div class="sn-flavors">
+        <span class="sn-arrow sn-arrow-l">←</span>
+        <span class="sn-name" data-fi="2">Blackberry</span>
+        <span class="sn-dot">·</span>
+        <span class="sn-name sn-current" data-fi="0">Regular</span>
+        <span class="sn-dot">·</span>
+        <span class="sn-name" data-fi="1">Cherry</span>
+        <span class="sn-arrow sn-arrow-r">→</span>
+      </div>
     </div>
 
     <!-- Flavor dots -->
@@ -1647,7 +1710,7 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
         <em class="fsp-eyebrow">Since 1885</em>
         <h2 class="fsp-name">Regular</h2>
         <div class="fsp-divider"></div>
-        <p class="fsp-desc">The original legend. 23 secret flavors in perfect harmony since 1885. Bold, complex, unmistakable.</p>
+        <p class="fsp-desc">The original legend. <span class="kw-xl">23</span> secret flavors in perfect harmony since <span class="kw">1885</span>. Bold, complex, unmistakable.</p>
         <button class="btn-fill fsp-btn" style="--accent:#711F25;--accent-rgb:113,31,37;">
           Explore Regular
         </button>
@@ -1663,7 +1726,7 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
         <em class="fsp-eyebrow">Bold & Bright</em>
         <h2 class="fsp-name">Cherry</h2>
         <div class="fsp-divider"></div>
-        <p class="fsp-desc">Vibrant cherry meets the iconic 23-flavor formula. A bright, electrifying twist on a century-old classic.</p>
+        <p class="fsp-desc">Vibrant cherry meets the iconic <span class="kw-xl">23-flavor</span> formula. A <span class="kw">bright, electrifying</span> twist on a century-old classic.</p>
         <button class="btn-fill fsp-btn" style="--accent:#CC0000;--accent-rgb:204,0,0;">
           Explore Cherry
         </button>
@@ -1679,7 +1742,7 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
         <em class="fsp-eyebrow">Dark & Complex</em>
         <h2 class="fsp-name">Blackberry</h2>
         <div class="fsp-divider"></div>
-        <p class="fsp-desc">Bold blackberry darkness layered over 23 iconic flavors. Rich, mysterious, utterly unforgettable.</p>
+        <p class="fsp-desc">Bold blackberry darkness layered over <span class="kw-xl">23</span> iconic flavors. <span class="kw">Rich, mysterious,</span> utterly unforgettable.</p>
         <button class="btn-fill fsp-btn" style="--accent:#4a1d82;--accent-rgb:74,29,130;">
           Explore Blackberry
         </button>
@@ -1697,17 +1760,17 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
     <div class="fr-cell reveal">
       <div class="fr-num" data-count="23" data-suffix="">—</div>
       <div class="fr-label">Secret Flavors</div>
-      <p class="fr-desc">A proprietary blend never fully disclosed — crafted by pharmacist Charles Alderton in 1885.</p>
+      <p class="fr-desc">A <span class="kw">proprietary blend</span> never fully disclosed — crafted by pharmacist Charles Alderton in <span class="kw">1885</span>.</p>
     </div>
     <div class="fr-cell reveal" data-delay="1">
       <div class="fr-num" data-count="139" data-suffix="+">—</div>
       <div class="fr-label">Years of Legacy</div>
-      <p class="fr-desc">Born in Waco, Texas. Still the most unique taste on earth — and no one has replicated it.</p>
+      <p class="fr-desc">Born in <span class="kw">Waco, Texas</span>. Still the <span class="kw-xl">most unique</span> taste on earth — and no one has replicated it.</p>
     </div>
     <div class="fr-cell reveal" data-delay="2">
       <div class="fr-num" data-count="3" data-suffix="">—</div>
       <div class="fr-label">Bold Variants</div>
-      <p class="fr-desc">Regular, Cherry, and Blackberry — three distinct experiences, one unmistakable DNA.</p>
+      <p class="fr-desc"><span class="kw">Regular, Cherry, and Blackberry</span> — three distinct experiences, one unmistakable DNA.</p>
     </div>
   </div>
 </div>
@@ -1723,8 +1786,8 @@ body.scrolled .scroll-hint { opacity: 0; transition: opacity .5s; }
           <em class="ps-eyebrow reveal">Since 1885</em>
           <h2 class="ps-title reveal">Born in<br>Waco, Texas.</h2>
           <div class="ps-body reveal" data-delay="1">
-            <p>Pharmacist Charles Alderton created Dr Pepper at Morrison's Old Corner Drug Store, experimenting with fruit syrups until he landed a combination unlike anything the world had tasted.</p>
-            <p>The result was a bold, impossibly complex blend of 23 flavors — a formula so unique it defies category. Not a cola, not a root beer, not a fruit soda. Dr Pepper is simply Dr Pepper.</p>
+            <p>Pharmacist <span class="kw">Charles Alderton</span> created Dr Pepper at Morrison's Old Corner Drug Store, experimenting with fruit syrups until he landed a combination unlike anything the world had tasted.</p>
+            <p>The result was a bold, impossibly complex blend of <span class="kw-xl">23 flavors</span> — a formula so unique it defies category. <span class="kw">Not a cola, not a root beer, not a fruit soda.</span> Dr Pepper is simply Dr Pepper.</p>
           </div>
           <div class="ps-stats reveal" data-delay="2">
             <div class="ps-stat">
@@ -2049,9 +2112,17 @@ let switching  = false;
 let maxScroll  = 1;
 
 /* ─── CANVAS ─────────────────────────────────────────────── */
+// On mobile HiDPI screens (2-3× DPR) the canvas MUST match physical pixels
+// or every frame looks blurry/pixelated. Cap at 2× for performance.
+let _dpr = 1;
+
 function resizeCanvas() {
-  canvas.width  = pin.offsetWidth;
-  canvas.height = pin.offsetHeight;
+  _dpr = IS_MOBILE ? Math.min(window.devicePixelRatio || 1, 2.5) : 1;
+  const w = pin.offsetWidth, h = pin.offsetHeight;
+  canvas.width  = Math.round(w * _dpr);
+  canvas.height = Math.round(h * _dpr);
+  canvas.style.width  = w + 'px';
+  canvas.style.height = h + 'px';
   drawF(activeF);
 }
 
@@ -2060,9 +2131,10 @@ function drawF(idx) {
   if (!f || !f.complete || !f.naturalWidth) return;
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const { naturalWidth:iw, naturalHeight:ih } = f;
+  // canvas.width/height are physical pixels — drawImage works in physical space
   const cw = canvas.width, ch = canvas.height;
+  ctx.clearRect(0, 0, cw, ch);
+  const { naturalWidth:iw, naturalHeight:ih } = f;
   const sc = Math.max(cw/iw, ch/ih);
   ctx.drawImage(f, (cw-iw*sc)/2, (ch-ih*sc)/2, iw*sc, ih*sc);
 }
@@ -2101,18 +2173,6 @@ function secTransform(op, dir) {
   if (dir==='left')  return `translateX(${-t*d}px)`;
   if (dir==='right') return `translateX(${t*d}px)`;
   return '';
-}
-
-/* ─── MOBILE RAF IDLE PAUSE — battery & heat saver ──────── */
-let _idleTimer = null;
-function wakeRAF() {
-  // Restart canvas loop if idle, then schedule auto-pause after scroll stops
-  if (!rafId) startRAF();
-  clearTimeout(_idleTimer);
-  _idleTimer = setTimeout(() => {
-    cancelAnimationFrame(rafId);
-    rafId = null;
-  }, 300);
 }
 
 /* ─── RAF LOOP ───────────────────────────────────────────── */
@@ -2195,7 +2255,6 @@ function initLenis() {
       rawP = clamp(s / maxScroll, 0, 1);
       if (s > 40) topNav.classList.add('frosted');
       else        topNav.classList.remove('frosted');
-      wakeRAF(); // wake canvas loop; it auto-sleeps after scroll stops
     }, { passive: true });
     return;
   }
@@ -2307,6 +2366,22 @@ function applyTheme(vIdx) {
     b.classList.toggle('active', i===vIdx);
     b.setAttribute('aria-selected', i===vIdx ? 'true' : 'false');
   });
+  // Sync swipe nudge: highlight current flavor name
+  document.querySelectorAll('#swipe-nudge .sn-name').forEach(n => {
+    n.classList.toggle('sn-current', +n.dataset.fi === vIdx);
+  });
+  // Re-arrange so prev|current|next reads left→right
+  const nudgeFlavors = document.querySelector('.sn-flavors');
+  if (nudgeFlavors) {
+    const prev = (vIdx - 1 + VARIANTS.length) % VARIANTS.length;
+    const next = (vIdx + 1) % VARIANTS.length;
+    document.querySelectorAll('#swipe-nudge .sn-name').forEach(n => {
+      const fi = +n.dataset.fi;
+      if (fi === prev) n.style.order = '1';
+      else if (fi === vIdx) n.style.order = '2';
+      else if (fi === next) n.style.order = '3';
+    });
+  }
 }
 
 /* ─── SWITCH VARIANT ─────────────────────────────────────── */
@@ -2317,12 +2392,22 @@ function switchVariant(newIdx) {
   pin.style.opacity = '0';
 
   const doSwitch = () => {
+    // Must scroll to top BEFORE resetting rawP; otherwise the native scroll
+    // event fires with the old scrollY and immediately overrides rawP = 0.
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
     cv = newIdx;
     activeF = 0;
-    lerpP = 0; rawP = 0;
+    rawP = 0; lerpP = 0;
     applyTheme(newIdx);
     drawF(0);
-    if (lenis) lenis.scrollTo(0, { immediate: true });
+    // Reset canvas slide offset from swipe preview
+    canvas.style.transition = 'transform .4s cubic-bezier(.23,1,.32,1)';
+    canvas.style.transform = '';
+    setTimeout(() => { canvas.style.transition = ''; }, 420);
     pin.style.opacity = '1';
     setTimeout(() => { pin.style.transition = ''; switching = false; }, 350);
   };
@@ -2488,25 +2573,32 @@ function init() {
   scrollSections[0].style.transform = 'translateY(0)';
 
   // Preload variant 0
+  // On mobile: hide loader early (30%) so user starts experiencing immediately;
+  // remaining frames load in background — drawF() skips missing frames gracefully.
+  let _started = false;
+  function startExperience() {
+    if (_started) return;
+    _started = true;
+    loader.classList.add('out');
+    applyTheme(0);
+    drawF(0);
+    initLenis();
+    startRAF();
+    initGSAP();
+    if (!IS_MOBILE) initMagnetic();
+    setTimeout(() => preload(1), 400);
+    setTimeout(() => preload(2), 1800);
+  }
+
   preload(0,
     (done, total) => {
-      const pct = Math.round(done/total*100);
-      lFill.style.width = pct+'%';
-      lPct.textContent  = pct+'%';
+      const pct = Math.round(done / total * 100);
+      lFill.style.width = pct + '%';
+      lPct.textContent  = pct + '%';
+      // Mobile: start at 30% — enough frames for first scroll segment
+      if (IS_MOBILE && pct >= 30) startExperience();
     },
-    () => {
-      loader.classList.add('out');
-      applyTheme(0);
-      drawF(0);
-      initLenis();
-      // On mobile the RAF is woken by scroll; start it once for first paint
-      startRAF();
-      if (IS_MOBILE) { clearTimeout(_idleTimer); _idleTimer = setTimeout(() => { cancelAnimationFrame(rafId); rafId = null; }, 800); }
-      initGSAP();
-      if (!IS_MOBILE) initMagnetic(); // magnetic hover is pointless on touch
-      setTimeout(() => preload(1), 600);
-      setTimeout(() => preload(2), 2200);
-    }
+    startExperience // desktop: wait for 100%
   );
 }
 
@@ -2618,7 +2710,7 @@ document.querySelectorAll('.fr-cell').forEach(cell => {
 /* ─── MOBILE: SWIPE TO SWITCH FLAVOR ─────────────────── */
 (function initSwipe() {
   if (!IS_MOBILE) return;
-  let startX = 0, startY = 0, startT = 0;
+  let startX = 0, startY = 0, startT = 0, dragging = false;
   const hero = document.getElementById('hero-pin');
   if (!hero) return;
 
@@ -2626,22 +2718,40 @@ document.querySelectorAll('.fr-cell').forEach(cell => {
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
     startT = Date.now();
+    dragging = true;
+    canvas.style.transition = 'none'; // instant during drag
+  }, { passive: true });
+
+  hero.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    // Only show horizontal rubber-band if it's clearly a horizontal gesture
+    if (Math.abs(dx) > Math.abs(dy) * 1.2) {
+      const pan = Math.max(-48, Math.min(48, dx * 0.22));
+      canvas.style.transform = `translateX(${pan}px)`;
+    }
   }, { passive: true });
 
   hero.addEventListener('touchend', e => {
+    dragging = false;
     const dx = e.changedTouches[0].clientX - startX;
     const dy = e.changedTouches[0].clientY - startY;
     const dt = Date.now() - startT;
-    // Valid swipe: fast, long horizontal, not mostly vertical
-    if (dt > 450) return;
-    if (Math.abs(dx) < 44) return;
-    if (Math.abs(dy) > Math.abs(dx) * 0.75) return; // likely a scroll
+    const isSwipe = dt < 480 && Math.abs(dx) >= 48 && Math.abs(dy) < Math.abs(dx) * 0.7;
 
-    document.body.classList.add('swiped');
-    switchVariant(dx < 0
-      ? (cv + 1) % VARIANTS.length              // swipe left → next
-      : (cv - 1 + VARIANTS.length) % VARIANTS.length // swipe right → prev
-    );
+    if (isSwipe) {
+      document.body.classList.add('swiped');
+      switchVariant(dx < 0
+        ? (cv + 1) % VARIANTS.length
+        : (cv - 1 + VARIANTS.length) % VARIANTS.length
+      );
+    } else {
+      // Not a swipe — snap canvas back smoothly
+      canvas.style.transition = 'transform .4s cubic-bezier(.23,1,.32,1)';
+      canvas.style.transform = '';
+      setTimeout(() => { canvas.style.transition = ''; }, 420);
+    }
   }, { passive: true });
 })();
 
